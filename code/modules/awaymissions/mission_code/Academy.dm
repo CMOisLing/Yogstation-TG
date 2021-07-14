@@ -2,31 +2,23 @@
 //Academy Areas
 
 /area/awaymission/academy
-	name = "Academy Asteroids"
 	icon_state = "away"
+	requires_power = FALSE
 
-/area/awaymission/academy/headmaster
-	name = "Academy Fore Block"
+/area/awaymission/academy/academyclassroom
+	name = "Academy Classrooms"
 	icon_state = "away1"
 
-/area/awaymission/academy/classrooms
-	name = "Academy Classroom Block"
+/area/awaymission/academy/academyfore
+	name = "Academy Fore Block"
 	icon_state = "away2"
 
 /area/awaymission/academy/academyaft
-	name = "Academy Ship Aft Block"
+	name = "Academy Aft Block"
 	icon_state = "away3"
-
-/area/awaymission/academy/academygate
-	name = "Academy Gateway"
-	icon_state = "away4"
 
 /area/awaymission/academy/academycellar
 	name = "Academy Cellar"
-	icon_state = "away4"
-
-/area/awaymission/academy/academyengine
-	name = "Academy Engine"
 	icon_state = "away4"
 
 //Academy Items
@@ -173,22 +165,49 @@
 
 /obj/item/dice/d20/fate/stealth
 	name = "d20"
+	color = null
 	desc = "A die with twenty sides. The preferred die to throw at the GM."
 
 /obj/item/dice/d20/fate/one_use
 	reusable = FALSE
 
-/obj/item/dice/d20/fate/one_use/stealth
-	name = "d20"
-	desc = "A die with twenty sides. The preferred die to throw at the GM."
+/obj/item/dice/d20/fate/stealth/one_use
+	reusable = FALSE
 
 /obj/item/dice/d20/fate/cursed
-	name = "cursed Die of Fate"
+	name = "Cursed Die of Fate"
 	desc = "A die with twenty sides. You feel that rolling this is a REALLY bad idea."
 	color = "#00BB00"
-
 	rigged = DICE_TOTALLY_RIGGED
 	rigged_value = 1
+
+/obj/item/dice/d20/fate/cursed/stealth
+	name = "Die of Fate"
+	color = null
+	desc = "A die with twenty sides. The preferred die to throw at the GM."
+
+/obj/item/dice/d20/fate/cursed/one_use
+	reusable = FALSE
+
+/obj/item/dice/d20/fate/cursed/stealth/one_use
+	reusable = FALSE
+
+/obj/item/dice/d20/fate/blessed
+	name = "Blessed Die of Fate"
+	desc = "A die with twenty sides. You feel that rolling this is a REALLY good idea."
+	color = "#00FFFF"
+	rigged = DICE_TOTALLY_RIGGED
+	rigged_value = 20
+
+/obj/item/dice/d20/fate/blessed/stealth
+	name = "Die of Fate"
+	desc = "A die with twenty sides. The preferred die to throw at the GM."
+
+/obj/item/dice/d20/fate/blessed/one_use
+	reusable = FALSE
+
+/obj/item/dice/d20/fate/blessed/stealth/one_use
+	reusable = FALSE
 
 /obj/item/dice/d20/fate/diceroll(mob/user)
 	. = ..()
@@ -206,6 +225,7 @@
 		addtimer(CALLBACK(src, .proc/effect, user, .), 1 SECONDS)
 
 /obj/item/dice/d20/fate/equipped(mob/user, slot)
+	. = ..()
 	if(!ishuman(user) || !user.mind || (user.mind in SSticker.mode.wizards))
 		to_chat(user, "<span class='warning'>You feel the magic of the dice is restricted to ordinary humans! You should leave it alone.</span>")
 		user.dropItemToGround(src)
@@ -361,7 +381,8 @@
 
 	var/mob/living/target_mob
 
-	action_icon_state = "summons"
+	action_icon = 'icons/mob/actions/humble/actions_humble.dmi'
+	action_icon_state = "summon_servant"
 
 /obj/effect/proc_holder/spell/targeted/summonmob/cast(list/targets,mob/user = usr)
 	if(!target_mob)

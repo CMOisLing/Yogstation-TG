@@ -10,6 +10,7 @@
 	active_power_usage = 500
 	circuit = /obj/item/circuitboard/computer/crew
 
+
 	light_color = LIGHT_COLOR_BLUE
 
 /obj/machinery/computer/crew/syndie
@@ -41,12 +42,16 @@ GLOBAL_DATUM_INIT(crewmonitor, /datum/crewmonitor, new)
 	jobs["Geneticist"] = 22
 	jobs["Virologist"] = 23
 	jobs["Medical Doctor"] = 24
+	jobs["Paramedic"] = 25 //Yogs: Added IDs for this job
+	jobs["Psychiatrist"] = 26 //Yogs: Added IDs for this job
+	jobs["Mining Medic"] = 27 //Yogs: Added IDs for this job
 	jobs["Research Director"] = 30
 	jobs["Scientist"] = 31
 	jobs["Roboticist"] = 32
 	jobs["Chief Engineer"] = 40
 	jobs["Station Engineer"] = 41
 	jobs["Atmospheric Technician"] = 42
+	jobs["Signal Technician"] = 43 //Yogs: Added IDs for this job
 	jobs["Quartermaster"] = 51
 	jobs["Shaft Miner"] = 52
 	jobs["Cargo Technician"] = 53
@@ -59,6 +64,9 @@ GLOBAL_DATUM_INIT(crewmonitor, /datum/crewmonitor, new)
 	jobs["Mime"] = 67
 	jobs["Janitor"] = 68
 	jobs["Lawyer"] = 69
+	jobs["Clerk"] = 71 //Yogs: Added IDs for this job, also need to skip 70 or it clerk would be considered a head job
+	jobs["Tourist"] = 72 //Yogs: Added IDs for this job
+	jobs["Artist"] = 73 //Yogs: Added IDs for this job
 	jobs["Admiral"] = 200
 	jobs["CentCom Commander"] = 210
 	jobs["Custodian"] = 211
@@ -75,13 +83,12 @@ GLOBAL_DATUM_INIT(crewmonitor, /datum/crewmonitor, new)
 /datum/crewmonitor/Destroy()
 	return ..()
 
-/datum/crewmonitor/ui_interact(mob/user, ui_key = "crew", datum/tgui/ui = null, force_open = FALSE, \
-							datum/tgui/master_ui = null, datum/ui_state/state = GLOB.default_state)
-	ui = SStgui.try_update_ui(user, src, ui_key, ui, force_open)
+/datum/crewmonitor/ui_interact(mob/user, datum/tgui/ui)
+	ui = SStgui.try_update_ui(user, src, ui)
 	if (!ui)
-		var/datum/asset/simple/assets = get_asset_datum(/datum/asset/simple/mapimage)
-		assets.send(user)
-		ui = new(user, src, ui_key, "crew", "Crew Monitoring Console", 800, 600 , master_ui, state)
+		for(var/datum/minimap/M in SSmapping.station_minimaps)
+			M.send(user)
+		ui = new(user, src, "CrewConsole")
 		ui.open()
 
 /datum/crewmonitor/proc/show(mob/M, source)
@@ -100,9 +107,7 @@ GLOBAL_DATUM_INIT(crewmonitor, /datum/crewmonitor, new)
 	. = list()
 	.["sensors"] = zdata
 	.["link_allowed"] = isAI(user)
-	.["mapsize"] = world.maxy
 	.["z"] = z
-
 /datum/crewmonitor/proc/update_data(z)
 	if(data_by_z["[z]"] && last_update["[z]"] && world.time <= last_update["[z]"] + SENSORS_UPDATE_PERIOD)
 		return data_by_z["[z]"]

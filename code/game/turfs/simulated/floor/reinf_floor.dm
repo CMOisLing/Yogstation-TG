@@ -1,4 +1,3 @@
-
 /turf/open/floor/engine
 	name = "reinforced floor"
 	desc = "Extremely sturdy."
@@ -31,6 +30,9 @@
 	return //unplateable
 
 /turf/open/floor/engine/try_replace_tile(obj/item/stack/tile/T, mob/user, params)
+	return
+
+/turf/open/floor/engine/remove_tile(mob/user, silent = FALSE, make_tile = TRUE)
 	return
 
 /turf/open/floor/engine/crowbar_act(mob/living/user, obj/item/I)
@@ -75,12 +77,11 @@
 				ScrapeAway(flags = CHANGETURF_INHERIT_AIR)
 
 /turf/open/floor/engine/singularity_pull(S, current_size)
-	..()
 	if(current_size >= STAGE_FIVE)
 		if(floor_tile)
 			if(prob(30))
 				new floor_tile(src)
-				make_plating()
+				make_plating(TRUE)
 		else if(prob(30))
 			ReplaceWithLattice()
 

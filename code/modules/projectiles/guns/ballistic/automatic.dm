@@ -10,6 +10,10 @@
 	fire_sound_volume = 80
 	vary_fire_sound = FALSE
 	rack_sound = "sound/weapons/smgrack.ogg"
+	feedback_fire_slide = TRUE
+	feedback_types = list(
+		"fire" = 2
+	)
 
 /obj/item/gun/ballistic/automatic/proto
 	name = "\improper Nanotrasen Saber SMG"
@@ -84,15 +88,20 @@
 	item_state = "arg"
 	mag_type = /obj/item/ammo_box/magazine/wt550m9
 	fire_delay = 2
+	burst_size = 1
 	can_suppress = FALSE
-	burst_size = 0
-	actions_types = list()
 	can_bayonet = TRUE
 	knife_x_offset = 25
 	knife_y_offset = 12
 	mag_display = TRUE
 	mag_display_ammo = TRUE
 	empty_indicator = TRUE
+	weapon_weight = WEAPON_MEDIUM
+
+/obj/item/gun/ballistic/automatic/wt550/occupying
+	name = "surplus security auto rifle"
+	desc = "Crude surplus variant of the WT-550 Automatic Rifle meant for mass deployment. Does not come with the benefits of a two round burst."
+	mag_type = /obj/item/ammo_box/magazine/wt550m9/wtr
 
 /obj/item/gun/ballistic/automatic/mini_uzi
 	name = "\improper Type U3 Uzi"
@@ -300,7 +309,7 @@
 	w_class = WEIGHT_CLASS_NORMAL
 	zoomable = TRUE
 	zoom_amt = 10 //Long range, enough to see in front of you, but no tiles behind you.
-	zoom_out_amt = 13
+	zoom_out_amt = 5
 	slot_flags = ITEM_SLOT_BACK
 	actions_types = list()
 	mag_display = TRUE
@@ -311,6 +320,9 @@
 	can_suppress = TRUE
 	can_unsuppress = TRUE
 	pin = /obj/item/firing_pin/implant/pindicate
+
+/obj/item/gun/ballistic/automatic/sniper_rifle/ultrasecure
+	pin = /obj/item/firing_pin/fucked
 
 // Old Semi-Auto Rifle //
 

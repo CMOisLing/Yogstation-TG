@@ -32,10 +32,15 @@
 	gloves = /obj/item/clothing/gloves/color/white
 	head = /obj/item/clothing/head/frenchberet
 	suit = /obj/item/clothing/suit/suspenders
-	backpack_contents = list(/obj/item/book/mimery=1, /obj/item/reagent_containers/food/drinks/bottle/bottleofnothing=1)
+	backpack_contents = list(
+	/obj/item/book/mimery=1,
+	/obj/item/reagent_containers/food/drinks/bottle/bottleofnothing=1,
+	/obj/item/stamp/mime = 1)
 
 	backpack = /obj/item/storage/backpack/mime
 	satchel = /obj/item/storage/backpack/mime
+
+	chameleon_extras = /obj/item/stamp/mime
 
 
 /datum/outfit/job/mime/post_equip(mob/living/carbon/human/H, visualsOnly = FALSE)
@@ -55,13 +60,15 @@
 
 /obj/item/book/mimery/attack_self(mob/user,)
 	user.set_machine(src)
-	var/dat = "<B>Guide to Dank Mimery</B><BR>"
+	var/dat = "<HTML><HEAD><meta charset='UTF-8'></HEAD><BODY>"
+	dat += "<B>Guide to Dank Mimery</B><BR>"
 	dat += "Teaches one of three classic pantomime routines, allowing a practiced mime to conjure invisible objects into corporeal existence.<BR>"
 	dat += "Once you have mastered your routine, this book will have no more to say to you.<BR>"
 	dat += "<HR>"
 	dat += "<A href='byond://?src=[REF(src)];invisible_wall=1'>Invisible Wall</A><BR>"
 	dat += "<A href='byond://?src=[REF(src)];invisible_chair=1'>Invisible Chair</A><BR>"
 	dat += "<A href='byond://?src=[REF(src)];invisible_box=1'>Invisible Box</A><BR>"
+	dat += "</BODY></HTML>"
 	user << browse(dat, "window=book")
 
 /obj/item/book/mimery/Topic(href, href_list)

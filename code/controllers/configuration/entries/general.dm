@@ -210,7 +210,13 @@
 	config_entry_value = "https://forums.yogstation.net/index.php?pages/rules/" // yogs - Old Tickets
 
 /datum/config_entry/string/githuburl
-	config_entry_value = "https://github.com/yogstation13/Yogstation-TG" // yogs - Old Tickets
+	config_entry_value = "https://github.com/yogstation13/Yogstation" // yogs - Old Tickets
+
+/datum/config_entry/string/apiurl
+	config_entry_value = "https://forums.yogstation.net/api"
+
+/datum/config_entry/string/demourl
+	config_entry_value = "https://yogstation13.github.io/demo-viewer/?roundid="
 
 /datum/config_entry/string/roundstatsurl
 
@@ -267,6 +273,10 @@
 
 /datum/config_entry/string/invoke_youtubedl
 	protection = CONFIG_ENTRY_LOCKED | CONFIG_ENTRY_HIDDEN
+
+/datum/config_entry/string/voice_announce_url_base
+
+/datum/config_entry/string/voice_announce_dir
 
 /datum/config_entry/flag/show_irc_name
 
@@ -488,3 +498,13 @@
 /datum/config_entry/flag/reopen_roundstart_suicide_roles_command_report
 
 /datum/config_entry/flag/protect_AI_from_traitor
+
+/datum/config_entry/flag/everyone_is_donator
+
+/datum/config_entry/string/centcom_ban_db	// URL for the CentCom Galactic Ban DB API
+
+/datum/config_entry/flag/auto_profile
+
+/datum/config_entry/flag/disable_gc_failure_hard_deletes
+
+/datum/config_entry/flag/disable_all_hard_deletes

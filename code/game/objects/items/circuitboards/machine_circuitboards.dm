@@ -43,6 +43,14 @@
 		/obj/item/stack/cable_coil = 2,
 		/obj/item/stack/sheet/glass = 1)
 
+/obj/item/circuitboard/machine/igniter
+	name = "Floor Igniter (Machine Board)"
+	icon_state = "engineering"
+	build_path = /obj/machinery/igniter
+	req_components = list(
+		/obj/item/stack/cable_coil = 2,
+		/obj/item/assembly/igniter = 1)
+
 /obj/item/circuitboard/machine/autolathe
 	name = "Autolathe (Machine Board)"
 	icon_state = "engineering"
@@ -382,6 +390,15 @@
 	name = "Freezer (Machine Board)"
 	build_path = PATH_FREEZER
 
+/obj/item/circuitboard/machine/crystallizer
+	name = "Crystallizer (Machine Board)"
+	icon_state = "engineering"
+	build_path = /obj/machinery/atmospherics/components/binary/crystallizer
+	req_components = list(
+		/obj/item/stack/cable_coil = 10,
+		/obj/item/stack/sheet/glass = 10,
+		/obj/item/stack/sheet/plasteel = 5)
+
 #undef PATH_FREEZER
 #undef PATH_HEATER
 
@@ -407,6 +424,24 @@
 	build_path = /obj/machinery/holopad
 	req_components = list(/obj/item/stock_parts/capacitor = 1)
 	needs_anchored = FALSE //wew lad
+	var/secure = FALSE
+
+/obj/item/circuitboard/machine/holopad/attackby(obj/item/P, mob/user, params)
+	if(P.tool_behaviour == TOOL_MULTITOOL)
+		if(secure)
+			build_path = /obj/machinery/holopad
+			secure = FALSE
+		else
+			build_path = /obj/machinery/holopad/secure
+			secure = TRUE
+		to_chat(user, "<span class='notice'>You [secure? "en" : "dis"]able the security on the [src]</span>")
+	. = ..()
+
+/obj/item/circuitboard/machine/holopad/examine(mob/user)
+	. = ..()
+	. += "There is a connection port on this board that could be <b>pulsed</b>"
+	if(secure)
+		. += "There is a red light flashing next to the word \"secure\""
 
 
 /obj/item/circuitboard/machine/launchpad
@@ -423,6 +458,15 @@
 	icon_state = "generic"
 	build_path = /obj/machinery/paystand
 	req_components = list()
+
+/obj/item/circuitboard/machine/ticketmachine
+	name = "Ticket Machine (Machine Board)"
+	icon_state = "generic"
+	desc = "You will also need a ticket machine remote to operate this."
+	build_path = /obj/machinery/ticket_machine
+	req_components = list(
+		/obj/item/hand_labeler = 1,
+		/obj/item/stack/sheet/glass = 1)
 
 /obj/item/circuitboard/machine/protolathe
 	name = "Protolathe (Machine Board)"
@@ -873,10 +917,12 @@
 		/obj/item/stock_parts/manipulator = 1)
 
 /obj/item/circuitboard/machine/public_nanite_chamber/multitool_act(mob/living/user)
-	var/new_cloud = input("Set the public nanite chamber's Cloud ID (1-100).", "Cloud ID", cloud_id) as num|null
-	if(new_cloud && (src.loc == user))
+	if(!(src.loc == user))
+		to_chat(user, "<span class='warning'>You have to hold the circuit in your hand to change it!</span>")
 		return
-	cloud_id = CLAMP(round(new_cloud, 1), 1, 100)
+	var/new_cloud = input("Set the public nanite chamber's Cloud ID (1-100).", "Cloud ID", cloud_id) as num|null
+	if(new_cloud)
+		cloud_id = clamp(round(new_cloud, 1), 1, 100)
 
 /obj/item/circuitboard/machine/public_nanite_chamber/examine(mob/user)
 	. = ..()
@@ -924,6 +970,11 @@
 	name = "\improper Departmental Techfab (Machine Board) - Security"
 	icon_state = "security"
 	build_path = /obj/machinery/rnd/production/techfab/department/security
+
+/obj/item/circuitboard/machine/techfab/department/armory
+	name = "\improper Departmental Techfab (Machine Board) - Armory"
+	icon_state = "security"
+	build_path = /obj/machinery/rnd/production/techfab/department/armory
 
 //Service
 
@@ -1165,3 +1216,17 @@
 		/obj/item/stock_parts/manipulator = /obj/item/stock_parts/manipulator/femto,
 		/obj/item/stock_parts/micro_laser = /obj/item/stock_parts/micro_laser/quadultra,
 		/obj/item/stock_parts/scanning_module = /obj/item/stock_parts/scanning_module/triphasic)
+
+/obj/item/circuitboard/machine/electrolyzer
+	name = "Electrolyzer (Machine Board)"
+	icon_state = "generic"
+	build_path = /obj/machinery/electrolyzer
+	req_components = list(
+		/obj/item/stock_parts/micro_laser = 2,
+		/obj/item/stock_parts/capacitor = 1,
+		/obj/item/stack/cable_coil = 3,
+		/obj/item/stack/sheet/glass = 1,
+		/obj/item/stack/sheet/mineral/gold = 1,
+		/obj/item/stack/sheet/mineral/silver = 1)
+
+	needs_anchored = FALSE

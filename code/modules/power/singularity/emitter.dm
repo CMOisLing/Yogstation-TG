@@ -44,6 +44,9 @@
 	var/charge = 0
 	var/last_projectile_params
 
+	var/throwing_range = 5
+	var/throwing_speed = 3
+
 
 /obj/machinery/power/emitter/anchored
 	anchored = TRUE
@@ -119,10 +122,6 @@
 		icon_state = avail(active_power_usage) ? icon_state_on : icon_state_underpowered
 	else
 		icon_state = initial(icon_state)
-
-/obj/machinery/power/emitter/power_change()
-	. = ..()
-	update_icon()
 
 /obj/machinery/power/emitter/interact(mob/user)
 	add_fingerprint(user)
@@ -206,7 +205,20 @@
 		fire_beam()
 
 /obj/machinery/power/emitter/proc/fire_beam(mob/user)
-	var/obj/item/projectile/P = new projectile_type(get_turf(src))
+	var/obj/item/K = new projectile_type(get_turf(src))
+
+	/// If it isn't a projectile, throw it
+	if(!istype(K, /obj/item/projectile))
+		if(istype(K, /obj/item/grenade))
+			var/obj/item/grenade/I = K
+			I.preprime()
+		K.throw_at(get_edge_target_turf(src, dir), throwing_range, throwing_speed)
+		playsound(get_turf(src), projectile_sound, 50, TRUE)
+		if(prob(35))
+			sparks.start()
+		return K
+
+	var/obj/item/projectile/P = K
 	playsound(get_turf(src), projectile_sound, 50, TRUE)
 	if(prob(35))
 		sparks.start()
@@ -299,19 +311,8 @@
 
 /obj/machinery/power/emitter/attackby(obj/item/I, mob/user, params)
 	if(I.GetID())
-		if(obj_flags & EMAGGED)
-			to_chat(user, "<span class='warning'>The lock seems to be broken!</span>")
-			return
-		if(allowed(user))
-			if(active)
-				locked = !locked
-				to_chat(user, "<span class='notice'>You [src.locked ? "lock" : "unlock"] the controls.</span>")
-			else
-				to_chat(user, "<span class='warning'>The controls can only be locked when \the [src] is online!</span>")
-		else
-			to_chat(user, "<span class='danger'>Access denied.</span>")
+		togglelock(user)
 		return
-
 	else if(is_wire_tool(I) && panel_open)
 		wires.interact(user)
 		return
@@ -319,6 +320,22 @@
 		if(integrate(I,user))
 			return
 	return ..()
+
+/obj/machinery/power/emitter/proc/togglelock(mob/user)
+	if(!user.canUseTopic(src, !issilicon(user)))
+		return
+	if(obj_flags & EMAGGED)
+		to_chat(user, "<span class='warning'>The lock seems to be broken!</span>")
+		return
+	if(allowed(user))
+		if(active)
+			locked = !locked
+			to_chat(user, "<span class='notice'>You [src.locked ? "lock" : "unlock"] the controls.</span>")
+		else
+			to_chat(user, "<span class='warning'>The controls can only be locked when \the [src] is online!</span>")
+	else
+		to_chat(user, "<span class='danger'>Access denied.</span>")
+	return
 
 /obj/machinery/power/emitter/proc/integrate(obj/item/gun/energy/E,mob/user)
 	if(istype(E, /obj/item/gun/energy))
@@ -368,7 +385,7 @@
 	icon_state_underpowered = "protoemitter_+u"
 	can_buckle = TRUE
 	buckle_lying = FALSE
-	var/view_range = 12
+	var/view_range = 4.5
 	var/datum/action/innate/protoemitter/firing/auto
 
 //BUCKLE HOOKS
@@ -383,7 +400,7 @@
 		buckled_mob.pixel_x = 0
 		buckled_mob.pixel_y = 0
 		if(buckled_mob.client)
-			buckled_mob.client.change_view(CONFIG_GET(string/default_view))
+			buckled_mob.client.view_size.resetToDefault()
 	auto.Remove(buckled_mob)
 	. = ..()
 
@@ -399,7 +416,7 @@
 	M.pixel_y = 14
 	layer = 4.1
 	if(M.client)
-		M.client.change_view(view_range)
+		M.client.view_size.setTo(view_range)
 	if(!auto)
 		auto = new()
 	auto.Grant(M, src)

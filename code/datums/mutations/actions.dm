@@ -32,6 +32,7 @@
 	desc = "Get a scent off of the item you're currently holding to track it. With an empty hand, you'll track the scent you've remembered."
 	charge_max = 100
 	clothes_req = FALSE
+	antimagic_allowed = TRUE
 	range = -1
 	include_user = TRUE
 	action_icon_state = "nose"
@@ -42,9 +43,7 @@
 /obj/effect/proc_holder/spell/targeted/olfaction/cast(list/targets, mob/living/user = usr)
 	//can we sniff? is there miasma in the air?
 	var/datum/gas_mixture/air = user.loc.return_air()
-	var/list/cached_gases = air.gases
-
-	if(cached_gases[/datum/gas/miasma])
+	if(air.get_moles(/datum/gas/miasma) >= 0.1)
 		user.adjust_disgust(sensitivity * 45)
 		to_chat(user, "<span class='warning'>With your overly sensitive nose, you get a whiff of stench and feel sick! Try moving to a cleaner area!</span>")
 		return
@@ -85,13 +84,14 @@
 	if(tracking_target == user)
 		to_chat(user,"<span class='warning'>You smell out the trail to yourself. Yep, it's you.</span>")
 		return
-	if(usr.z < tracking_target.z)
+	var/turf/pos = get_turf(tracking_target)
+	if(usr.z < pos.z)
 		to_chat(user,"<span class='warning'>The trail leads... way up above you? Huh. They must be really, really far away.</span>")
 		return
-	else if(usr.z > tracking_target.z)
+	else if(usr.z > pos.z)
 		to_chat(user,"<span class='warning'>The trail leads... way down below you? Huh. They must be really, really far away.</span>")
 		return
-	var/direction_text = "[dir2text(get_dir(usr, tracking_target))]"
+	var/direction_text = "[dir2text(get_dir(usr, pos))]"
 	if(direction_text)
 		to_chat(user,"<span class='notice'>You consider [tracking_target]'s scent. The trail leads <b>[direction_text].</b></span>")
 
@@ -107,11 +107,11 @@
 	instability = 30
 	energy_coeff = 1
 	power_coeff = 1
-
+	
 /datum/mutation/human/firebreath/modify()
 	if(power)
 		var/obj/effect/proc_holder/spell/aimed/firebreath/S = power
-		S.strength = GET_MUTATION_POWER(src)
+		S.strength = min(GET_MUTATION_POWER(src), S.strengthMax)
 
 /obj/effect/proc_holder/spell/aimed/firebreath
 	name = "Fire Breath"
@@ -119,15 +119,17 @@
 	school = "evocation"
 	charge_max = 600
 	clothes_req = FALSE
+	antimagic_allowed = TRUE
 	range = 20
 	projectile_type = /obj/item/projectile/magic/aoe/fireball/firebreath
 	base_icon_state = "fireball"
 	action_icon_state = "fireball0"
 	sound = 'sound/magic/demon_dies.ogg' //horrifying lizard noises
-	active_msg = "You built up heat in your mouth."
+	active_msg = "You build up heat in your mouth."
 	deactive_msg = "You swallow the flame."
 	var/strength = 1
-
+	var/const/strengthMax = 3
+	
 /obj/effect/proc_holder/spell/aimed/firebreath/before_cast(list/targets)
 	. = ..()
 	if(iscarbon(usr))
@@ -142,12 +144,12 @@
 	if(!istype(P, /obj/item/projectile/magic/aoe/fireball))
 		return
 	var/obj/item/projectile/magic/aoe/fireball/F = P
-	switch(strength)
-		if(1 to 3)
-			F.exp_light = strength-1
-		if(4 to INFINITY)
-			F.exp_heavy = strength-3
+	F.exp_light = strength-1
 	F.exp_fire += strength
+
+obj/effect/proc_holder/spell/aimed/firebreath/fire_projectile(mob/user)
+	. = ..()
+	message_admins("[ADMIN_LOOKUPFLW(user)] has shot firebreath at [ADMIN_VERBOSEJMP(user)]")
 
 /obj/item/projectile/magic/aoe/fireball/firebreath
 	name = "fire breath"
@@ -177,9 +179,11 @@
 	desc = "A rare genome that attracts odd forces not usually observed. May sometimes pull you in randomly."
 	school = "evocation"
 	clothes_req = FALSE
+	antimagic_allowed = TRUE
 	charge_max = 600
 	invocation = "DOOOOOOOOOOOOOOOOOOOOM!!!"
 	invocation_type = "shout"
+	action_icon = 'icons/mob/actions/humble/actions_humble.dmi'
 	action_icon_state = "void_magnet"
 
 /obj/effect/proc_holder/spell/self/void/can_cast(mob/user = usr)

@@ -27,20 +27,24 @@ Bonus
 	symptom_delay_min = 10
 	symptom_delay_max = 30
 	var/unsafe = FALSE //over the cold threshold
-	threshold_desc = "<b>Stage Speed 5:</b> Increases cooling speed; the host can fall below safe temperature levels.<br>\
-					  <b>Stage Speed 10:</b> Further increases cooling speed."
+	threshold_descs = list(
+		"Stage Speed 5" = "Increases cooling speed,; the host can fall below safe temperature levels.",
+		"Stage Speed 10" = "Further increases cooling speed."
+	)
 
 /datum/symptom/fever/Start(datum/disease/advance/A)
-	if(!..())
+	. = ..()
+	if(!.)
 		return
-	if(A.properties["stage_rate"] >= 5) //dangerous cold
+	if(A.totalStageSpeed() >= 5) //dangerous cold
 		power = 1.5
 		unsafe = TRUE
-	if(A.properties["stage_rate"] >= 10)
+	if(A.totalStageSpeed() >= 10)
 		power = 2.5
 
 /datum/symptom/shivering/Activate(datum/disease/advance/A)
-	if(!..())
+	. = ..()
+	if(!.)
 		return
 	var/mob/living/carbon/M = A.affected_mob
 	if(!unsafe || A.stage < 4)

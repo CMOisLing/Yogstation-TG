@@ -211,7 +211,9 @@
 				toggle_all_ctf(user)
 			return
 
-
+		if(!(GLOB.ghost_role_flags & GHOSTROLE_MINIGAME))
+			to_chat(user, "<span class='warning'>CTF has been temporarily disabled by admins.</span>")
+			return
 		people_who_want_to_play |= user.ckey
 		var/num = people_who_want_to_play.len
 		var/remaining = CTF_REQUIRED_PLAYERS - num
@@ -607,10 +609,11 @@
 	QDEL_IN(src, AMMO_DROP_LIFETIME)
 
 /obj/effect/ctf/ammo/Crossed(atom/movable/AM)
+	. = ..()
 	reload(AM)
 
-/obj/effect/ctf/ammo/Bump(atom/movable/AM)
-	reload(AM)
+/obj/effect/ctf/ammo/Bump(atom/A)
+	reload(A)
 
 /obj/effect/ctf/ammo/Bumped(atom/movable/AM)
 	reload(AM)

@@ -1,7 +1,7 @@
 /client/proc/dsay(msg as text)
-	set category = "Special Verbs"
+	set category = "Misc.Unused"
 	set name = "Dsay"
-	set hidden = 1
+	set hidden = TRUE
 	if(!holder)
 		to_chat(src, "Only administrators may use this command.", confidential=TRUE)
 		return
@@ -14,7 +14,7 @@
 	if (handle_spam_prevention(msg,MUTE_DEADCHAT))
 		return
 
-	msg = copytext(sanitize(msg), 1, MAX_MESSAGE_LEN)
+	msg = copytext_char(sanitize(msg), 1, MAX_MESSAGE_LEN)
 	mob.log_talk(msg, LOG_DSAY)
 
 	if (!msg)
@@ -22,9 +22,9 @@
 	var/rank_name = holder.rank
 	var/admin_name = key
 	if(holder.fakekey)
-		rank_name = pick(strings("admin_nicknames.json", "ranks", "config"))
-		admin_name = pick(strings("admin_nicknames.json", "names", "config"))
-	var/rendered = "<span class='game deadsay'><span class='prefix'>DEAD:</span> <span class='name'>[rank_name]([admin_name])</span> says, <span class='message'>\"[emoji_parse(msg)]\"</span></span>"
+		rank_name = holder.fakekey
+		admin_name = holder.fakename
+	var/rendered = "<span class='game deadsay'><span class='prefix'>DEAD:</span> <span class='name'>([rank_name]) [admin_name]</span> says, <span class='message'>\"[emoji_parse(msg)]\"</span></span>"
 
 	for (var/mob/M in GLOB.player_list)
 		if(isnewplayer(M) && !(M.client && M.client.holder)) // Yogs -- Allows admins to hear admin deadsay while in the lobby
@@ -38,5 +38,6 @@
 	// yogs start - Cancel button
 	var/msg = input(src, null, "dsay \"text\"") as text|null
 	if(msg)
+		msg = to_utf8(msg, src)
 		dsay(msg)
 	// yogs end

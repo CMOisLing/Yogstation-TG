@@ -77,7 +77,7 @@
 		var/mob/living/carbon/C = owner
 		if(!C)
 			return
-		if(C.stat == DEAD && !IS_IN_STASIS(C))
+		if(C.stat == DEAD && !(IS_IN_STASIS(C) || HAS_TRAIT(C, TRAIT_PRESERVED_ORGANS)))
 			if(damage >= maxHealth)
 				organ_flags |= ORGAN_FAILING
 				damage = maxHealth
@@ -199,7 +199,7 @@
 
 ///SETS an organ's damage to the amount "d", and in doing so clears or sets the failing flag, good for when you have an effect that should fix an organ if broken
 /obj/item/organ/proc/setOrganDamage(var/d)	//use mostly for admin heals
-	damage = CLAMP(d, 0 ,maxHealth)
+	damage = clamp(d, 0 ,maxHealth)
 	if(d >= maxHealth)
 		organ_flags |= ORGAN_FAILING
 	else

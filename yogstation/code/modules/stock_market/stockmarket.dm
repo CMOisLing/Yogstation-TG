@@ -60,7 +60,7 @@
 		return d
 
 /datum/stockMarket/proc/generateStocks(var/amt = 15)
-	var/list/fruits = list("Banana", "Mimana", "Watermelon", "Ambrosia", "Pomegranate", "Reishi", "Papaya", "Mango", "Tomato", "Conkerberry", "Wood", "Lychee", "Mandarin", "Harebell", "Pumpkin", "Rhubarb", "Tamarillo", "Yantok", "Ziziphus", "Oranges", "Gatfruit", "Daisy", "Kudzu")
+	var/list/fruits = list("Banana", "Mimana", "Watermelon", "Ambrosia", "Pomegranate", "Reishi", "Papaya", "Mango", "Tomato", "Conkerberry", "Wood", "Lychee", "Mandarin", "Harebell", "Pumpkin", "Rhubarb", "Tamarillo", "Yantok", "Ziziphus", "Oranges", "Daisy", "Kudzu")
 	var/list/tech_prefix = list("Nano", "Cyber", "Funk", "Astro", "Fusion", "Tera", "Exo", "Star", "Virtual", "Plasma", "Robust", "Bit", "Future", "Hugbox", "Carbon", "Nerf", "Buff", "Nova", "Space", "Meta", "Cyber")
 	var/list/tech_short = list("soft", "tech", "prog", "tec", "tek", "ware", "", "gadgets", "nics", "tric", "trasen", "tronic", "coin")
 	var/list/random_nouns = list("Johnson", "Cluwne", "General", "Specific", "Master", "King", "Queen", "Table", "Rupture", "Dynamic", "Massive", "Mega", "Giga", "Certain", "Singulo", "State", "National", "International", "Interplanetary", "Sector", "Planet", "Burn", "Robust", "Exotic", "Solar", "Lunar", "Chelp", "Corgi", "Lag", "Lizard")
@@ -69,7 +69,7 @@
 		var/datum/stock/S = new
 		var/sname = ""
 		switch (rand(1,6))
-			if(1)
+			if(1) //                          VVVVVVVV this is a check to prevent the word from randomly showing up in game, github dont lynch us
 				while (sname == "" || sname == "FAG") // honestly it's a 0.6% chance per round this happens - or once in 166 rounds - so i'm accounting for it before someone yells at me
 					sname = "[consonant()][vowel()][consonant()]"
 			if (2)
@@ -126,7 +126,7 @@
 GLOBAL_DATUM_INIT(stockExchange, /datum/stockMarket, new)
 
 /proc/plotBarGraph(var/list/points, var/base_text, var/width=400, var/height=400)
-	var/output = "<table style='border:1px solid black; border-collapse: collapse; width: [width]px; height: [height]px'>"
+	var/output = "<HTML><HEAD><meta charset='UTF-8'></HEAD><BODY><table style='border:1px solid black; border-collapse: collapse; width: [width]px; height: [height]px'>"
 	if (points.len && height > 20 && width > 20)
 		var/min = points[1]
 		var/max = points[1]
@@ -167,5 +167,5 @@ GLOBAL_DATUM_INIT(stockExchange, /datum/stockMarket, new)
 		output += "<tr><td style='width:[width]px; height:[height]px; background: black'></td></tr>"
 		output += "<tr><td style='font-size:10px; background:black; color:green; text-align:center'>[base_text]</td></tr>"
 
-	return "[output]</table>"
+	return "[output]</table></BODY></HTML>"
 

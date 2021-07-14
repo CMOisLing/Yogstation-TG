@@ -1,3 +1,5 @@
+GLOBAL_LIST_EMPTY(lockers)
+
 /obj/structure/closet
 	name = "closet"
 	desc = "It's a basic storage unit."
@@ -34,7 +36,15 @@
 	var/anchorable = TRUE
 	var/icon_welded = "welded"
 	var/notreallyacloset = FALSE // It is genuinely a closet
-
+	var/datum/gas_mixture/air_contents
+	var/airtight_when_welded = TRUE
+	var/airtight_when_closed = FALSE
+	var/obj/effect/overlay/closet_door/door_obj
+	var/is_animating_door = FALSE
+	var/door_anim_squish = 0.12
+	var/door_anim_angle = 136
+	var/door_hinge_x = -6.5
+	var/door_anim_time = 2.5 // set to 0 to make the door not animate at all
 
 /obj/structure/closet/Initialize(mapload)
 	if(mapload && !opened)		// if closed, any item at the crate's loc is put in the contents
@@ -42,6 +52,7 @@
 	. = ..()
 	update_icon()
 	PopulateContents()
+	GLOB.lockers += src
 
 //USE THIS TO FILL IT, NOT INITIALIZE OR NEW
 /obj/structure/closet/proc/PopulateContents()
@@ -49,30 +60,71 @@
 
 /obj/structure/closet/Destroy()
 	dump_contents()
+	GLOB.lockers -= src
 	return ..()
 
 /obj/structure/closet/update_icon()
 	cut_overlays()
 	if(!opened)
 		layer = OBJ_LAYER
-		if(icon_door)
-			add_overlay("[icon_door]_door")
-		else
-			add_overlay("[icon_state]_door")
-		if(welded)
-			add_overlay(icon_welded)
-		if(secure && !broken)
-			if(locked)
-				add_overlay("locked")
+		if(!is_animating_door)
+			if(icon_door)
+				add_overlay("[icon_door]_door")
 			else
-				add_overlay("unlocked")
+				add_overlay("[icon_state]_door")
+			if(welded)
+				add_overlay(icon_welded)
+			if(secure && !broken)
+				if(locked)
+					add_overlay("locked")
+				else
+					add_overlay("unlocked")
 
 	else
 		layer = BELOW_OBJ_LAYER
-		if(icon_door_override)
-			add_overlay("[icon_door]_open")
+		if(!is_animating_door)
+			if(icon_door_override)
+				add_overlay("[icon_door]_open")
+			else
+				add_overlay("[icon_state]_open")
+
+/obj/structure/closet/proc/animate_door(var/closing = FALSE)
+	if(!door_anim_time)
+		return
+	if(!door_obj) door_obj = new
+	vis_contents |= door_obj
+	door_obj.icon = icon
+	door_obj.icon_state = "[icon_door || icon_state]_door"
+	is_animating_door = TRUE
+	var/num_steps = door_anim_time / world.tick_lag
+	for(var/I in 0 to num_steps)
+		var/angle = door_anim_angle * (closing ? 1 - (I/num_steps) : (I/num_steps))
+		var/matrix/M = get_door_transform(angle)
+		var/door_state = angle >= 90 ? "[icon_door_override ? icon_door : icon_state]_back" : "[icon_door || icon_state]_door"
+		var/door_layer = angle >= 90 ? FLOAT_LAYER : ABOVE_MOB_LAYER
+
+		if(I == 0)
+			door_obj.transform = M
+			door_obj.icon_state = door_state
+			door_obj.layer = door_layer
+		else if(I == 1)
+			animate(door_obj, transform = M, icon_state = door_state, layer = door_layer, time = world.tick_lag, flags = ANIMATION_END_NOW)
 		else
-			add_overlay("[icon_state]_open")
+			animate(transform = M, icon_state = door_state, layer = door_layer, time = world.tick_lag)
+	addtimer(CALLBACK(src,.proc/end_door_animation),door_anim_time,TIMER_UNIQUE|TIMER_OVERRIDE)
+
+/obj/structure/closet/proc/end_door_animation()
+	is_animating_door = FALSE
+	vis_contents -= door_obj
+	update_icon()
+	COMPILE_OVERLAYS(src)
+
+/obj/structure/closet/proc/get_door_transform(angle)
+	var/matrix/M = matrix()
+	M.Translate(-door_hinge_x, 0)
+	M.Multiply(matrix(cos(angle), 0, 0, -sin(angle) * door_anim_squish, 1, 0))
+	M.Translate(door_hinge_x, 0)
+	return M
 
 /obj/structure/closet/examine(mob/user)
 	.=..()
@@ -91,10 +143,10 @@
 		if(HAS_TRAIT(L, TRAIT_SKITTISH))
 			. += "<span class='notice'>Ctrl-Shift-click [src] to jump inside.</span>"
 
-/obj/structure/closet/CanPass(atom/movable/mover, turf/target)
+/obj/structure/closet/CanAllowThrough(atom/movable/mover, turf/target)
+	. = ..()
 	if(wall_mounted)
 		return TRUE
-	return !density
 
 /obj/structure/closet/proc/can_open(mob/living/user)
 	if(welded || locked)
@@ -143,7 +195,9 @@
 		density = FALSE
 	climb_time *= 0.5 //it's faster to climb onto an open thing
 	dump_contents()
+	animate_door(FALSE)
 	update_icon()
+	update_airtightness()
 	return 1
 
 /obj/structure/closet/proc/insert(atom/movable/AM)
@@ -195,7 +249,10 @@
 	climb_time = initial(climb_time)
 	opened = FALSE
 	density = TRUE
+	animate_door(TRUE)
 	update_icon()
+	update_airtightness()
+	close_storage(user)
 	return TRUE
 
 /obj/structure/closet/proc/toggle(mob/living/user)
@@ -203,6 +260,12 @@
 		return close(user)
 	else
 		return open(user)
+
+/obj/structure/closet/proc/close_storage(mob/living/user)
+	for(var/obj/object in contents)
+		var/datum/component/storage/closeall = object.GetComponent(/datum/component/storage)
+		if(closeall)
+			closeall.close_all()
 
 /obj/structure/closet/deconstruct(disassembled = TRUE)
 	if(ispath(material_drop) && material_drop_amount && !(flags_1 & NODECONSTRUCT_1))
@@ -224,6 +287,8 @@
 /obj/structure/closet/proc/tool_interact(obj/item/W, mob/user)//returns TRUE if attackBy call shouldnt be continued (because tool was used/closet was of wrong type), FALSE if otherwise
 	. = TRUE
 	if(opened)
+		if(user.a_intent == INTENT_HARM)
+			return FALSE
 		if(istype(W, cutting_tool))
 			if(W.tool_behaviour == TOOL_WELDER)
 				if(!W.tool_start_check(user, amount=0))
@@ -255,6 +320,7 @@
 				return
 			welded = !welded
 			after_weld(welded)
+			update_airtightness()
 			user.visible_message("<span class='notice'>[user] [welded ? "welds shut" : "unwelded"] \the [src].</span>",
 							"<span class='notice'>You [welded ? "weld" : "unwelded"] \the [src] with \the [W].</span>",
 							"<span class='italics'>You hear welding.</span>")
@@ -312,8 +378,11 @@
 			var/mob/living/L = O
 			if(!issilicon(L))
 				L.Paralyze(40)
-			O.forceMove(T)
-			close()
+			if(istype(src, /obj/structure/closet/supplypod/extractionpod))
+				O.forceMove(src)
+			else
+				O.forceMove(T)
+				close()
 	else
 		O.forceMove(T)
 	return 1
@@ -374,7 +443,7 @@
 /obj/structure/closet/container_resist(mob/living/user)
 	if(opened)
 		return
-	if(ismovableatom(loc))
+	if(ismovable(loc))
 		user.changeNext_move(CLICK_CD_BREAKOUT)
 		user.last_special = world.time + CLICK_CD_BREAKOUT
 		var/atom/movable/AM = loc
@@ -470,8 +539,14 @@
 				req_access += pick(get_all_accesses())
 
 /obj/structure/closet/contents_explosion(severity, target)
-	for(var/atom/A in contents)
-		A.ex_act(severity, target)
+	for(var/thing in contents)
+		switch(severity)
+			if(EXPLODE_DEVASTATE)
+				SSexplosions.high_mov_atom += thing
+			if(EXPLODE_HEAVY)
+				SSexplosions.med_mov_atom += thing
+			if(EXPLODE_LIGHT)
+				SSexplosions.low_mov_atom += thing
 		CHECK_TICK
 
 /obj/structure/closet/singularity_act()
@@ -505,3 +580,48 @@
 		user.resting = FALSE
 		togglelock(user)
 		T1.visible_message("<span class='warning'>[user] dives into [src]!</span>")
+
+/obj/structure/closet/proc/update_airtightness()
+	var/is_airtight = FALSE
+	if(airtight_when_closed && !opened)
+		is_airtight = TRUE
+	if(airtight_when_welded && welded)
+		is_airtight = TRUE
+	// okay so this might create/delete gases but the alternative is extra work and/or unnecessary spacewind from welding lockers.
+	// basically we're simulating the air being displaced without actually having the air be displaced.
+	// speaking of we should really add a way to displace air. Canisters are really big and they really ought to displace air. Alas it doesnt exist
+	// so instead I have to violate conservation of energy. Not that this game already doesn't.
+	if(is_airtight && !air_contents)
+		air_contents = new(500)
+		var/datum/gas_mixture/loc_air = loc?.return_air()
+		if(loc_air)
+			air_contents.copy_from(loc_air)
+			air_contents.remove_ratio((1 - (air_contents.return_volume() / loc_air.return_volume()))) // and thus we have just magically created new gases....
+	else if(!is_airtight && air_contents)
+		var/datum/gas_mixture/loc_air = loc?.return_air()
+		if(loc_air) // remember that air we created earlier? Now it's getting deleted! I mean it's still going on the turf....
+			var/remove_amount = (loc_air.total_moles() + air_contents.total_moles()) * air_contents.return_volume() / (loc_air.return_volume() + air_contents.return_volume())
+			loc.assume_air(air_contents)
+			loc.remove_air(remove_amount)
+			loc.air_update_turf()
+		air_contents = null
+
+/obj/structure/closet/return_air()
+	if(welded)
+		return air_contents
+	return ..()
+
+/obj/structure/closet/assume_air(datum/gas_mixture/giver)
+	if(air_contents)
+		return air_contents.merge(giver)
+	return ..()
+
+/obj/structure/closet/remove_air(amount)
+	if(air_contents)
+		return air_contents.remove(amount)
+	return ..()
+
+/obj/structure/closet/return_temperature()
+	if(air_contents)
+		return air_contents.return_temperature()
+	return ..()

@@ -28,20 +28,24 @@ Bonus
 	symptom_delay_min = 25
 	symptom_delay_max = 90
 	var/fake_healthy = FALSE
-	threshold_desc = "<b>Stage Speed 7:</b> Increases the amount of hallucinations.<br>\
-					  <b>Stealth 4:</b> The virus mimics positive symptoms.."
+	threshold_descs = list(
+		"Stage Speed 7" = "Increases the amount of hallucinations.",
+		"Stealth 4" = "The virus mimics positive symptoms.",
+	)
 
 /datum/symptom/hallucigen/Start(datum/disease/advance/A)
-	if(!..())
+	. = ..()
+	if(!.)
 		return
-	if(A.properties["stealth"] >= 4) //fake good symptom messages
+	if(A.totalStealth() >= 4) //fake good symptom messages
 		fake_healthy = TRUE
 		base_message_chance = 50
-	if(A.properties["stage_rate"] >= 7) //stronger hallucinations
+	if(A.totalStageSpeed() >= 7) //stronger hallucinations
 		power = 2
 
 /datum/symptom/hallucigen/Activate(datum/disease/advance/A)
-	if(!..())
+	. = ..()
+	if(!.)
 		return
 	var/mob/living/carbon/M = A.affected_mob
 	var/list/healthy_messages = list("Your lungs feel great.", "You realize you haven't been breathing.", "You don't feel the need to breathe.",\

@@ -6,6 +6,10 @@
 	return drain_power_from(H, A)
 
 /datum/species/preternis/proc/drain_power_from(mob/living/carbon/human/H, atom/A)
+	if(get_dist(H, A) > 1)
+		to_chat(H, "<span class='warning'>[A] is too far away!</span>")
+		return FALSE
+
 	if(!istype(H) || !A)
 		return FALSE
 
@@ -61,7 +65,7 @@
 		var/nutritionIncrease = drain * ELECTRICITY_TO_NUTRIMENT_FACTOR
 
 		if(charge + nutritionIncrease > PRETERNIS_LEVEL_FULL)
-			nutritionIncrease = CLAMP(PRETERNIS_LEVEL_FULL - charge, PRETERNIS_LEVEL_NONE,PRETERNIS_LEVEL_FULL) //if their nutrition goes up from some other source, this could be negative, which would cause bad things to happen.
+			nutritionIncrease = clamp(PRETERNIS_LEVEL_FULL - charge, PRETERNIS_LEVEL_NONE,PRETERNIS_LEVEL_FULL) //if their nutrition goes up from some other source, this could be negative, which would cause bad things to happen.
 			drain = nutritionIncrease/ELECTRICITY_TO_NUTRIMENT_FACTOR
 
 		if (do_after(H,5, target = A))
@@ -78,7 +82,7 @@
 				if(drained < drain)
 					to_chat(H,"<span class='info'>[A]'s power has been depleted, CONSUME protocol halted.</span>")
 					done = TRUE
-				charge = CLAMP(charge + (drained * ELECTRICITY_TO_NUTRIMENT_FACTOR),PRETERNIS_LEVEL_NONE,PRETERNIS_LEVEL_FULL)
+				charge = clamp(charge + (drained * ELECTRICITY_TO_NUTRIMENT_FACTOR),PRETERNIS_LEVEL_NONE,PRETERNIS_LEVEL_FULL)
 
 				if(!done)
 					if(charge > (PRETERNIS_LEVEL_FULL - 25))

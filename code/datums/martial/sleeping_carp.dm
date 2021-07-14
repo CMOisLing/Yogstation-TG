@@ -7,7 +7,7 @@
 /datum/martial_art/the_sleeping_carp
 	name = "The Sleeping Carp"
 	id = MARTIALART_SLEEPINGCARP
-	deflection_chance = 100
+	deflection_chance = 0 //no block unless throwmode is on
 	reroute_deflection = TRUE
 	no_guns = TRUE
 	allow_temp_override = FALSE
@@ -161,14 +161,15 @@
 	to_chat(usr, "<span class='notice'>Head Kick</span>: Disarm Harm Harm. Decent damage, forces opponent to drop item in hand.")
 	to_chat(usr, "<span class='notice'>Elbow Drop</span>: Harm Disarm Harm Disarm Harm. Opponent must be on the ground. Deals huge damage, instantly kills anyone in critical condition.")
 
+	to_chat(usr, "<b><i>You will only deflect projectiles while throwmode is enabled.</i></b>")
+
 /obj/item/twohanded/bostaff
 	name = "bo staff"
 	desc = "A long, tall staff made of polished wood. Traditionally used in ancient old-Earth martial arts. Can be wielded to both kill and incapacitate."
 	force = 10
-	w_class = WEIGHT_CLASS_BULKY
+	w_class = WEIGHT_CLASS_NORMAL
 	slot_flags = ITEM_SLOT_BACK
-	force_unwielded = 10
-	force_wielded = 24
+	force_wielded = 14
 	throwforce = 20
 	throw_speed = 2
 	attack_verb = list("smashed", "slammed", "whacked", "thwacked")
@@ -211,22 +212,28 @@
 									  "[user] smacks [H] with the butt of [src]!", \
 									  "[user] broadsides [H] with [src]!", \
 									  "[user] smashes [H]'s head with [src]!", \
-									  "[user] beats [H] with front of [src]!", \
+									  "[user] beats [H] with the front of [src]!", \
 									  "[user] twirls and slams [H] with [src]!")
 		H.visible_message("<span class='warning'>[pick(fluffmessages)]</span>", \
 							   "<span class='userdanger'>[pick(fluffmessages)]</span>")
 		playsound(get_turf(user), 'sound/effects/woodhit.ogg', 75, 1, -1)
-		H.adjustStaminaLoss(rand(13,20))
-		if(prob(10))
-			H.visible_message("<span class='warning'>[H] collapses!</span>", \
-								   "<span class='userdanger'>Your legs give out!</span>")
-			H.Paralyze(80)
+		playsound(get_turf(user), 'sound/effects/hit_kick.ogg', 75, 1, -1)
+		SEND_SIGNAL(src, COMSIG_ITEM_ATTACK, H, user)
+		SEND_SIGNAL(user, COMSIG_MOB_ITEM_ATTACK, H, user)
+		H.lastattacker = user.real_name
+		H.lastattackerckey = user.ckey
+
+		user.do_attack_animation(H)
+
+		log_combat(user, H, "Bo Staffed", src.name, "((DAMTYPE: STAMINA)")
+		add_fingerprint(user)
+		H.apply_damage(rand(28,33), STAMINA, BODY_ZONE_HEAD)
 		if(H.staminaloss && !H.IsSleeping())
 			var/total_health = (H.health - H.staminaloss)
 			if(total_health <= HEALTH_THRESHOLD_CRIT && !H.stat)
 				H.visible_message("<span class='warning'>[user] delivers a heavy hit to [H]'s head, knocking [H.p_them()] out cold!</span>", \
 									   "<span class='userdanger'>[user] knocks you unconscious!</span>")
-				H.SetSleeping(600)
+				H.SetSleeping(300)
 				H.adjustOrganLoss(ORGAN_SLOT_BRAIN, 15, 150)
 	else
 		return ..()

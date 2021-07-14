@@ -103,6 +103,7 @@
 			H.mind.AddSpell(new /obj/effect/proc_holder/spell/targeted/sling/glare(null))
 			H.mind.AddSpell(new /obj/effect/proc_holder/spell/aoe_turf/veil(null))
 			H.mind.AddSpell(new /obj/effect/proc_holder/spell/targeted/void_jaunt(null))
+			H.mind.AddSpell(new /obj/effect/proc_holder/spell/targeted/shadowwalk(null))
 			H.mind.AddSpell(new /obj/effect/proc_holder/spell/aoe_turf/flashfreeze(null))
 			H.mind.AddSpell(new /obj/effect/proc_holder/spell/self/collective_mind(null))
 			H.mind.AddSpell(new /obj/effect/proc_holder/spell/self/shadowling_regenarmor(null))
@@ -164,6 +165,7 @@
 				SEND_SOUND(M, sound('sound/hallucinations/veryfar_noise.ogg'))
 			for(var/obj/machinery/power/apc/A in GLOB.apcs_list)
 				A.overload_lighting()
+			SSachievements.unlock_achievement(/datum/achievement/greentext/slingascend, H.client)
 			var/mob/A = new /mob/living/simple_animal/ascendant_shadowling(H.loc)
 			for(var/X in H.mind.spell_list)
 				var/obj/effect/proc_holder/spell/S = X

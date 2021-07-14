@@ -8,7 +8,7 @@
 	spawn_positions = 2
 	supervisors = "the chief engineer"
 	selection_color = "#fff5cc"
-	exp_requirements = 60
+	exp_requirements = 180
 	exp_type = EXP_TYPE_CREW
 
 	outfit = /datum/outfit/job/atmos
@@ -20,11 +20,15 @@
 	paycheck_department = ACCOUNT_ENG
 	display_order = JOB_DISPLAY_ORDER_ATMOSPHERIC_TECHNICIAN
 
-	changed_maps = list("OmegaStation")
+	changed_maps = list("OmegaStation", "EclipseStation")
 
 /datum/job/atmos/proc/OmegaStationChanges()
 	total_positions = 3
 	supervisors = "the captain and the head of personnel"
+
+/datum/job/atmos/proc/EclipseStationChanges()
+	total_positions = 3
+	spawn_positions = 3
 
 /datum/outfit/job/atmos
 	name = "Atmospheric Technician"

@@ -32,14 +32,11 @@
 
 	display_order = JOB_DISPLAY_ORDER_HEAD_OF_SECURITY
 
-	changed_maps = list("YogsPubby", "OmegaStation")
+	changed_maps = list("YogsPubby")
 
 /datum/job/hos/proc/YogsPubbyChanges()
 	access += ACCESS_CREMATORIUM
 	minimal_access += ACCESS_CREMATORIUM
-
-/datum/job/hos/proc/OmegaStationChanges()
-	return TRUE
 
 /datum/outfit/job/hos
 	name = "Head of Security"
@@ -50,6 +47,7 @@
 	ears = /obj/item/radio/headset/heads/hos/alt
 	uniform = /obj/item/clothing/under/rank/head_of_security
 	shoes = /obj/item/clothing/shoes/jackboots
+	alt_shoes = /obj/item/clothing/shoes/xeno_wraps/jackboots // Provides Command shoes to digitigrade species
 	suit = /obj/item/clothing/suit/armor/hos/trenchcoat
 	gloves = /obj/item/clothing/gloves/color/black/hos
 	head = /obj/item/clothing/head/HoS/beret
@@ -57,7 +55,7 @@
 	suit_store = /obj/item/gun/energy/e_gun
 	r_pocket = /obj/item/assembly/flash/handheld
 	l_pocket = /obj/item/restraints/handcuffs
-	backpack_contents = list(/obj/item/melee/baton/loaded=1) //yogs - removed departmental budget ID //come here often?
+	backpack_contents = list(/obj/item/melee/baton/loaded=1, /obj/item/modular_computer/tablet/preset/advanced=1) //yogs - removed departmental budget ID //come here often?
 
 	backpack = /obj/item/storage/backpack/security
 	satchel = /obj/item/storage/backpack/satchel/sec

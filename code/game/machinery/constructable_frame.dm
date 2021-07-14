@@ -72,6 +72,8 @@
 	return amt
 
 /obj/structure/frame/machine/attackby(obj/item/P, mob/user, params)
+	if(!istype(user, /mob/living))
+		return
 	switch(state)
 		if(1)
 			if(istype(P, /obj/item/circuitboard/machine))
@@ -276,3 +278,9 @@
 			var/obj/item/I = X
 			I.forceMove(loc)
 	..()
+
+/obj/structure/frame/machine/MouseDrop_T(atom/dropping, mob/user)
+	if(istype(dropping, /obj/item/circuitboard))
+		attackby(dropping, user)
+	else
+		..()

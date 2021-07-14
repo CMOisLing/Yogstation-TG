@@ -99,10 +99,10 @@
 	name = "Incinerator Air Control (Computer Board)"
 	build_path = /obj/machinery/computer/atmos_control/tank/incinerator
 
-/obj/item/circuitboard/computer/auxillary_base
-	name = "Auxillary Base Management Console (Computer Board)"
+/obj/item/circuitboard/computer/auxiliary_base
+	name = "Auxiliary Base Management Console (Computer Board)"
 	icon_state = "engineering"
-	build_path = /obj/machinery/computer/auxillary_base
+	build_path = /obj/machinery/computer/auxiliary_base
 
 /obj/item/circuitboard/computer/base_construction
 	name = "circuit board (Aux Mining Base Construction Console)"
@@ -123,7 +123,6 @@
 	name = "Communications (Computer Board)"
 	icon_state = "engineering"
 	build_path = /obj/machinery/computer/communications
-	var/lastTimeUsed = 0
 
 /obj/item/circuitboard/computer/message_monitor
 	name = "Message Monitor (Computer Board)"
@@ -415,6 +414,21 @@
 	name = "Security Cameras (Computer Board)"
 	icon_state = "security"
 	build_path = /obj/machinery/computer/security
+
+/obj/item/circuitboard/computer/security/labor
+	name = "Labor Security Cameras (Computer Board)"
+	icon_state = "security"
+	build_path = /obj/machinery/computer/security/labor
+
+/obj/item/circuitboard/computer/security/hos
+	name = "HOS Security Cameras (Computer Board)"
+	icon_state = "security"
+	build_path = /obj/machinery/computer/security/hos
+
+/obj/item/circuitboard/computer/security/qm
+	name = "QM Security Cameras (Computer Board)"
+	icon_state = "supply"
+	build_path = /obj/machinery/computer/security/qm
 
 //Service
 

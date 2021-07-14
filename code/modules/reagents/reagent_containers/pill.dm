@@ -89,6 +89,12 @@
 	icon_state = "pill5"
 	list_reagents = list(/datum/reagent/toxin/cyanide = 50)
 
+/obj/item/reagent_containers/pill/iaa
+	name = "death pill"
+	desc = "Don't swallow this."
+	icon_state = "pill5"
+	list_reagents = list(/datum/reagent/toxin/cyanide = 20, /datum/reagent/toxin/initropidril = 15, /datum/reagent/toxin/coniine = 15)
+
 /obj/item/reagent_containers/pill/adminordrazine
 	name = "adminordrazine pill"
 	desc = "It's magic. We don't have to explain it."
@@ -136,6 +142,9 @@
 	list_reagents = list(/datum/reagent/medicine/mannitol = 50)
 	rename_with_volume = TRUE
 
+/obj/item/reagent_containers/pill/mannitol/braintumor
+	list_reagents = list(/datum/reagent/medicine/mannitol = 20)
+
 /obj/item/reagent_containers/pill/mutadone
 	name = "mutadone pill"
 	desc = "Used to treat genetic damage."
@@ -143,9 +152,12 @@
 	list_reagents = list(/datum/reagent/medicine/mutadone = 50)
 	rename_with_volume = TRUE
 
+/obj/item/reagent_containers/pill/mutadone/five
+	list_reagents = list(/datum/reagent/medicine/mutadone = 5)
+
 /obj/item/reagent_containers/pill/salicyclic
 	name = "salicylic acid pill"
-	desc = "Used to dull pain."
+	desc = "Used to stimulate bruise healing."
 	icon_state = "pill9"
 	list_reagents = list(/datum/reagent/medicine/sal_acid = 24)
 	rename_with_volume = TRUE
@@ -242,3 +254,26 @@
 	if(prob(20))
 		desc = pick(descs)
 
+/obj/item/reagent_containers/pill/bica
+	name = "bicaridine pill"
+	desc = "Used heal bruises and cuts."
+	icon_state = "pill10"
+	list_reagents = list(/datum/reagent/medicine/bicaridine = 14)
+
+/obj/item/reagent_containers/pill/kelo
+	name = "kelotane pill"
+	desc = "Used to heal burns."
+	icon_state = "pill12"
+	list_reagents = list(/datum/reagent/medicine/kelotane = 14)
+
+/obj/item/reagent_containers/pill/libi
+	name = "libital pill"
+	desc = "Used heal bruises and cuts."
+	icon_state = "pill10"
+	list_reagents = list(/datum/reagent/medicine/c2/libital = 14)
+
+/obj/item/reagent_containers/pill/aiur
+	name = "aiuri pill"
+	desc = "Used to heal burns."
+	icon_state = "pill12"
+	list_reagents = list(/datum/reagent/medicine/c2/aiuri = 14)

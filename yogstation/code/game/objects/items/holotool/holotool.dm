@@ -4,6 +4,7 @@
 	icon = 'yogstation/icons/obj/holotool.dmi'
 	icon_state = "holotool"
 	slot_flags = ITEM_SLOT_BELT
+	w_class = WEIGHT_CLASS_SMALL
 	usesound = 'sound/items/pshoom.ogg'
 	lefthand_file = 'yogstation/icons/mob/inhands/lefthand.dmi'
 	righthand_file = 'yogstation/icons/mob/inhands/righthand.dmi'
@@ -71,7 +72,10 @@
 		holo_item.color = current_color
 		item_state = current_tool.name
 		add_overlay(holo_item)
-		set_light(3, null, current_color)
+		if(current_tool.name == "off")
+			set_light(0)
+		else
+			set_light(3, null, current_color)
 	else
 		item_state = "holotool"
 		icon_state = "holotool"

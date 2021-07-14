@@ -84,7 +84,7 @@
 		if(href_list["menu"])
 			screen = text2num(href_list["menu"])
 
-		if(href_list["category"])
+		if(href_list["category"] in categories) //Don't let people send invalid categories, selected_category is displayed to anyone who looks at the machine in several places
 			selected_category = href_list["category"]
 
 		if(href_list["disposeI"])  //Get rid of a reagent incase you add the wrong one by mistake
@@ -146,6 +146,7 @@
 	limb.desc = "A synthetic [selected_category] limb that will morph on its first use in surgery. This one is for the [parse_zone(limb.body_zone)]."
 	limb.species_id = selected_category
 	limb.update_icon_dropped()
+	limb.original_owner = "limb grower"	 //prevents updating the icon, so a lizard arm on a human stays a lizard arm etc.
 
 /obj/machinery/limbgrower/RefreshParts()
 	reagents.maximum_volume = 0

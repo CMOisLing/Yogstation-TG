@@ -98,7 +98,7 @@ Doesn't work on other aliens/AI.*/
 	if(M.anti_magic_check(FALSE, FALSE, TRUE, 0))
 		to_chat(user, "<span class='noticealien'>As you try to communicate with [M], you're suddenly stopped by a vision of a massive tinfoil wall that streches beyond visible range. It seems you've been foiled.</span>")
 		return FALSE
-	var/msg = sanitize(input("Message:", "Alien Whisper") as text|null)
+	var/msg = sanitize(to_utf8(input("Message:", "Alien Whisper") as text|null, usr))
 	if(msg)
 		if(M.anti_magic_check(FALSE, FALSE, TRUE, 0))
 			to_chat(user, "<span class='notice'>As you try to communicate with [M], you're suddenly stopped by a vision of a massive tinfoil wall that streches beyond visible range. It seems you've been foiled.</span>")
@@ -149,10 +149,10 @@ Doesn't work on other aliens/AI.*/
 	action_icon_state = "alien_acid"
 
 /obj/effect/proc_holder/alien/acid/on_gain(mob/living/carbon/user)
-	user.verbs.Add(/mob/living/carbon/proc/corrosive_acid)
+	add_verb(user, /mob/living/carbon/proc/corrosive_acid)
 
 /obj/effect/proc_holder/alien/acid/on_lose(mob/living/carbon/user)
-	user.verbs.Remove(/mob/living/carbon/proc/corrosive_acid)
+	remove_verb(user, /mob/living/carbon/proc/corrosive_acid)
 
 /obj/effect/proc_holder/alien/acid/proc/corrode(atom/target,mob/living/carbon/user = usr)
 	if(target in oview(1,user))
@@ -229,6 +229,7 @@ Doesn't work on other aliens/AI.*/
 
 	user.visible_message("<span class='danger'>[user] spits neurotoxin!", "<span class='alertalien'>You spit neurotoxin.</span>")
 	var/obj/item/projectile/bullet/neurotoxin/A = new /obj/item/projectile/bullet/neurotoxin(user.loc)
+	A.firer = user
 	A.preparePixelProjectile(target, user, params)
 	A.fire()
 	user.newtonian_move(get_dir(U, T))

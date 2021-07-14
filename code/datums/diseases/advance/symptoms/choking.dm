@@ -28,20 +28,24 @@ Bonus
 	base_message_chance = 15
 	symptom_delay_min = 10
 	symptom_delay_max = 30
-	threshold_desc = "<b>Stage Speed 8:</b> Causes choking more frequently.<br>\
-					  <b>Stealth 4:</b> The symptom remains hidden until active."
+	threshold_descs = list(
+		"Stage Speed 8" = "Causes choking more frequently.",
+		"Stealth 4" = "The symptom remains hidden until active."
+	)
 
 /datum/symptom/choking/Start(datum/disease/advance/A)
-	if(!..())
+	. = ..()
+	if(!.)
 		return
-	if(A.properties["stage_rate"] >= 8)
+	if(A.totalStageSpeed() >= 8)
 		symptom_delay_min = 7
 		symptom_delay_max = 24
-	if(A.properties["stealth"] >= 4)
+	if(A.totalStealth() >= 4)
 		suppress_warning = TRUE
 
 /datum/symptom/choking/Activate(datum/disease/advance/A)
-	if(!..())
+	. = ..()
+	if(!.)
 		return
 	var/mob/living/M = A.affected_mob
 	switch(A.stage)
@@ -99,20 +103,24 @@ Bonus
 	symptom_delay_min = 14
 	symptom_delay_max = 30
 	var/paralysis = FALSE
-	threshold_desc = "<b>Stage Speed 8:</b> Additionally synthesizes pancuronium and sodium thiopental inside the host.<br>\
-					  <b>Transmission 8:</b> Doubles the damage caused by the symptom."
+	threshold_descs = list(
+		"Stage Speed 8" = "Additionally synthesizes pancuronium and sodium thiopental inside the host.",
+		"Transmission 8" = "Doubles the damage caused by the symptom."
+	)
 
 
 /datum/symptom/asphyxiation/Start(datum/disease/advance/A)
-	if(!..())
+	. = ..()
+	if(!.)
 		return
-	if(A.properties["stage_rate"] >= 8)
+	if(A.totalStageSpeed() >= 8)
 		paralysis = TRUE
-	if(A.properties["transmittable"] >= 8)
+	if(A.totalTransmittable() >= 8)
 		power = 2
 
 /datum/symptom/asphyxiation/Activate(datum/disease/advance/A)
-	if(!..())
+	. = ..()
+	if(!.)
 		return
 	var/mob/living/M = A.affected_mob
 	switch(A.stage)
@@ -130,19 +138,19 @@ Bonus
 	return
 
 /datum/symptom/asphyxiation/proc/Asphyxiate_stage_3_4(mob/living/M, datum/disease/advance/A)
-	var/get_damage = rand(10,15) * power
+	var/get_damage = rand(5,8) * power
 	M.adjustOxyLoss(get_damage)
 	return 1
 
 /datum/symptom/asphyxiation/proc/Asphyxiate(mob/living/M, datum/disease/advance/A)
-	var/get_damage = rand(15,21) * power
+	var/get_damage = rand(8,11) * power
 	M.adjustOxyLoss(get_damage)
 	if(paralysis)
 		M.reagents.add_reagent_list(list(/datum/reagent/toxin/pancuronium = 3, /datum/reagent/toxin/sodium_thiopental = 3))
 	return 1
 
 /datum/symptom/asphyxiation/proc/Asphyxiate_death(mob/living/M, datum/disease/advance/A)
-	var/get_damage = rand(25,35) * power
+	var/get_damage = rand(11,18) * power
 	M.adjustOxyLoss(get_damage)
-	M.adjustOrganLoss(ORGAN_SLOT_BRAIN, get_damage/2)
+	M.adjustOrganLoss(ORGAN_SLOT_BRAIN, get_damage/3)
 	return 1

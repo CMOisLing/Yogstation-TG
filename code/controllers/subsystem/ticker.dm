@@ -18,6 +18,7 @@ SUBSYSTEM_DEF(ticker)
 	var/datum/game_mode/mode = null
 
 	var/login_music							//music played in pregame lobby
+	var/login_music_data
 	var/round_end_sound						//music/jingle played when the world reboots
 	var/round_end_sound_sent = TRUE			//If all clients have loaded it
 
@@ -112,7 +113,9 @@ SUBSYSTEM_DEF(ticker)
 		login_music = pick(music)
 	else
 		login_music = "[global.config.directory]/title_music/sounds/[pick(music)]"*/
+	login_music_data = list()
 	login_music = choose_lobby_music()
+
 	if(!login_music)
 		to_chat(world, "<span class='boldwarning'>Could not load lobby music.</span>") //yogs end
 
@@ -214,7 +217,7 @@ SUBSYSTEM_DEF(ticker)
 		if(GLOB.master_mode == "secret")
 			hide_mode = 1
 			if(GLOB.secret_force_mode != "secret")
-				var/datum/game_mode/smode  	
+				var/datum/game_mode/smode
 				if(runnable_modes.len)
 					smode = config.pick_mode(GLOB.secret_force_mode)
 				if(!smode.can_start())
@@ -225,7 +228,7 @@ SUBSYSTEM_DEF(ticker)
 		if(!mode)
 			if(!runnable_modes.len)
 				mode = new /datum/game_mode/extended()
-				message_admins("<span class='notice'>Unable to choose any non-extended gamemode, running extended</span>")
+				message_admins("<span class='notice'>Unable to choose any non-extended gamemode, running extended.</span>")
 			else
 				mode = pickweight(runnable_modes)
 			if(!mode)	//too few roundtypes all run too recently
@@ -290,7 +293,7 @@ SUBSYSTEM_DEF(ticker)
 	SSdbcore.SetRoundStart()
 
 	to_chat(world, "<span class='notice'><B>Welcome to [station_name()], enjoy your stay!</B></span>")
-	SEND_SOUND(world, sound('sound/ai/welcome.ogg'))
+	SEND_SOUND(world, sound(SSstation.announcer.get_rand_welcome_sound()))
 
 	current_state = GAME_STATE_PLAYING
 	webhook_send_roundstatus("ingame") //yogs - webhook support
@@ -341,10 +344,12 @@ SUBSYSTEM_DEF(ticker)
 
 /datum/controller/subsystem/ticker/proc/station_explosion_detonation(atom/bomb)
 	if(bomb)	//BOOM
-		var/turf/epi = bomb.loc
 		qdel(bomb)
-		if(epi)
-			explosion(epi, 0, 256, 512, 0, TRUE, TRUE, 0, TRUE)
+	for(var/T in GLOB.station_turfs)
+		if(prob(33))
+			SSexplosions.highturf += T
+		else
+			SSexplosions.medturf += T
 
 /datum/controller/subsystem/ticker/proc/create_characters()
 	for(var/mob/dead/new_player/player in GLOB.player_list)
@@ -361,19 +366,41 @@ SUBSYSTEM_DEF(ticker)
 			SSticker.minds += P.new_character.mind
 		CHECK_TICK
 
-
+/**
+  * Equips people that are readied up when the round starts
+  *
+  * In addition, responsible for spawning the cyborg shell if there are no roundstart cyborgs and announcing if there ISN'T a Captain present
+  */
 /datum/controller/subsystem/ticker/proc/equip_characters()
-	var/captainless=1
+	var/captainless = TRUE
+	var/no_cyborgs = TRUE
+
 	for(var/mob/dead/new_player/N in GLOB.player_list)
 		var/mob/living/carbon/human/player = N.new_character
 		if(istype(player) && player.mind && player.mind.assigned_role)
 			if(player.mind.assigned_role == "Captain")
-				captainless=0
+				captainless = FALSE
+			if(player.mind.assigned_role == "Cyborg")
+				no_cyborgs = FALSE
 			if(player.mind.assigned_role != player.mind.special_role)
-				SSjob.EquipRank(N, player.mind.assigned_role, 0)
+				SSjob.EquipRank(N, player.mind.assigned_role, FALSE)
 				if(CONFIG_GET(flag/roundstart_traits) && ishuman(N.new_character))
 					SSquirks.AssignQuirks(N.new_character, N.client, TRUE)
 		CHECK_TICK
+	if(no_cyborgs)
+		var/obj/S = null
+		for(var/obj/effect/landmark/start/sloc in GLOB.start_landmarks_list)
+			if(sloc.name != "Cyborg")
+				S = sloc //so we can revert to spawning them on top of eachother if something goes wrong
+				continue
+			if(locate(/mob/living) in sloc.loc)
+				continue
+			S = sloc
+			sloc.used = TRUE
+			break
+		if(S)
+			new /mob/living/silicon/robot/shell(get_turf(S))
+
 	if(captainless)
 		for(var/mob/dead/new_player/N in GLOB.player_list)
 			if(N.new_character)
@@ -390,6 +417,7 @@ SUBSYSTEM_DEF(ticker)
 			if(living.client)
 				var/obj/screen/splash/S = new(living.client, TRUE)
 				S.Fade(TRUE)
+				living.client.init_verbs()
 			livings += living
 	if(livings.len)
 		addtimer(CALLBACK(src, .proc/release_characters, livings), 30, TIMER_CLIENT_TIME)
@@ -591,6 +619,10 @@ SUBSYSTEM_DEF(ticker)
 	fdel(F)
 	WRITE_FILE(F, the_mode)
 
+/// Returns if either the master mode or the forced secret ruleset matches the mode name.
+/datum/controller/subsystem/ticker/proc/is_mode(mode_name)
+	return GLOB.master_mode == mode_name || GLOB.secret_force_mode == mode_name
+
 /datum/controller/subsystem/ticker/proc/SetRoundEndSound(the_sound)
 	set waitfor = FALSE
 	round_end_sound_sent = FALSE
@@ -668,9 +700,13 @@ SUBSYSTEM_DEF(ticker)
 		'yogstation/sound/roundend/ass_blast_usa.ogg', // yogs -- adds "Ass Blast USA" vox
 		'sound/roundend/itshappening.ogg',
 		'yogstation/sound/roundend/bamboozeled.ogg',// yogs -- adds "We've been tricked, we've been backstabed, and we've quite possibly been bamboozeled.
+		'sound/roundend/yoggers.ogg', //yogs -- adds yogurt saying "Can we get a yoggers in the chat?"
+		'sound/roundend/it_never_happened.ogg', // jonathan frakes telling you you're wrong
 		'sound/roundend/disappointed.ogg',
 		'sound/roundend/scrunglartiy.ogg',
-		'sound/roundend/windowsxp.ogg'\
+		'sound/roundend/windowsxp.ogg',
+		'sound/roundend/spacemanthing.ogg',
+		'sound/roundend/no_more_cuss_words.ogg'\
 		)
 
 	SEND_SOUND(world, sound(round_end_sound))

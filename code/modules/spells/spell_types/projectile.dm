@@ -1,5 +1,3 @@
-
-
 /obj/item/projectile/magic/spell
 	name = "custom spell projectile"
 	var/list/ignored_factions //Do not hit these
@@ -44,7 +42,7 @@
 	. = ..()
 	if(linger && target != original)
 		return FALSE
-	if(ismob(target) && !direct_target) //Unsure about the direct target, i guess it could always skip these.
+	if(ismob(target))
 		var/mob/M = target
 		if(M.anti_magic_check(check_antimagic, check_holy))
 			return FALSE

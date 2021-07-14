@@ -11,22 +11,26 @@
 	var/purge_alcohol = FALSE
 	var/trauma_heal_mild = FALSE
 	var/trauma_heal_severe = FALSE
-	threshold_desc = "<b>Resistance 6:</b> Heals minor brain traumas.<br>\
-					  <b>Resistance 9:</b> Heals severe brain traumas.<br>\
-					  <b>Transmission 8:</b> Purges alcohol in the bloodstream."
+	threshold_descs = list(
+		"Resistance 6" = "Heals minor brain traumas.",
+		"Resistance 9" = "Heals severe brain traumas.",
+		"Transmission 8" = "Purges alcohol in the bloodstream.",
+	)
 
 /datum/symptom/mind_restoration/Start(datum/disease/advance/A)
-	if(!..())
+	. = ..()
+	if(!.)
 		return
-	if(A.properties["resistance"] >= 6) //heal brain damage
+	if(A.totalResistance() >= 6) //heal brain damage
 		trauma_heal_mild = TRUE
-	if(A.properties["resistance"] >= 9) //heal severe traumas
+	if(A.totalResistance() >= 9) //heal severe traumas
 		trauma_heal_severe = TRUE
-	if(A.properties["transmittable"] >= 8) //purge alcohol
+	if(A.totalTransmittable() >= 8) //purge alcohol
 		purge_alcohol = TRUE
 
 /datum/symptom/mind_restoration/Activate(var/datum/disease/advance/A)
-	if(!..())
+	. = ..()
+	if(!.)
 		return
 	var/mob/living/M = A.affected_mob
 
@@ -75,7 +79,8 @@
 	symptom_delay_max = 1
 
 /datum/symptom/sensory_restoration/Activate(datum/disease/advance/A)
-	if(!..())
+	. = ..()
+	if(!.)
 		return
 	var/mob/living/M = A.affected_mob
 	var/obj/item/organ/eyes/eyes = M.getorganslot(ORGAN_SLOT_EYES)

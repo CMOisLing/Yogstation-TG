@@ -35,6 +35,8 @@
 	var/last_scream = 0
 	var/recalls_remaining = 1
 	var/recalling
+	var/next_spaghetti = 0
+	var/spaghetti_cooldown = 50
 
 /obj/structure/destructible/clockwork/massive/celestial_gateway/Initialize()
 	. = ..()
@@ -58,13 +60,20 @@
 			hierophant_message("<span class='big boldwarning'>The Ark is taking damage!</span>")
 	last_scream = world.time + ARK_SCREAM_COOLDOWN
 
+/obj/structure/destructible/clockwork/massive/celestial_gateway/attackby(obj/item/I, mob/user, params)
+	if(istype(I, /obj/item/kitchen/fork))
+		if(world.time < next_spaghetti)
+			return
+		visible_message("<span class='brass'>[user] spins a serving of spaghetti out of [src].", "<span class='brass'>You reach your [I] into [src], pulling out a plateful of spaghetti!</span>")
+		new /obj/item/reagent_containers/food/snacks/spaghetti/boiledspaghetti(user.loc)
+		next_spaghetti = world.time + spaghetti_cooldown
+	. = ..()
+
 /obj/structure/destructible/clockwork/massive/celestial_gateway/proc/final_countdown(ark_time) //WE'RE LEAVING TOGETHEEEEEEEEER
 	if(!ark_time)
 		ark_time = 30 //minutes
 	initial_activation_delay = ark_time * 60
 	seconds_until_activation = ark_time * 60 //60 seconds in a minute * number of minutes
-	for(var/obj/item/clockwork/construct_chassis/cogscarab/C in GLOB.all_clockwork_objects)
-		C.infinite_resources = FALSE
 	GLOB.servants_active = TRUE
 	SSshuttle.registerHostileEnvironment(src)
 

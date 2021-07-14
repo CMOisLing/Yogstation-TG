@@ -124,6 +124,13 @@ GLOBAL_LIST_INIT(xeno_recipes, list ( \
 	icon = 'icons/mob/alien.dmi'
 	icon_state = "weed_extract"
 
+/obj/item/goldgrubguts
+	name= "Gold Grub Guts"
+	desc = "Gross, slimy, and green intestines retrieved from a Gold Grub. Legends say it is valuable in traditional medicines."
+	icon = 'icons/obj/mining.dmi'
+	icon_state = "goldgrubguts"
+	grind_results = list(/datum/reagent/medicine/grubjuice = 5)
+
 /obj/item/stack/sheet/hairlesshide
 	name = "hairless hide"
 	desc = "This hide was stripped of its hair, but still needs washing and tanning."
@@ -160,6 +167,7 @@ GLOBAL_LIST_INIT(leather_recipes, list ( \
 	new/datum/stack_recipe("leather jacket", /obj/item/clothing/suit/jacket/leather, 7), \
 	new/datum/stack_recipe("leather shoes", /obj/item/clothing/shoes/laceup, 2), \
 	new/datum/stack_recipe("leather overcoat", /obj/item/clothing/suit/jacket/leather/overcoat, 10), \
+	new/datum/stack_recipe("leather shawl", /obj/item/clothing/neck/yogs/shawl, 5), \
 ))
 
 /obj/item/stack/sheet/leather/Initialize(mapload, new_amount, merge = TRUE)
@@ -176,6 +184,11 @@ GLOBAL_LIST_INIT(leather_recipes, list ( \
 	singular_name = "watcher sinew"
 	icon_state = "sinew"
 	novariants = TRUE
+
+/obj/item/stack/sheet/sinew/wolf
+	name = "wolf sinew"
+	desc = "Long stringy filaments which came from the insides of a wolf."
+	singular_name = "wolf sinew"
 
 
 GLOBAL_LIST_INIT(sinew_recipes, list ( \
@@ -201,6 +214,11 @@ GLOBAL_LIST_INIT(sinew_recipes, list ( \
 	w_class = WEIGHT_CLASS_NORMAL
 	layer = MOB_LAYER
 
+/obj/item/stack/sheet/animalhide/goliath_hide/polar_bear_hide
+	name = "polar bear hides"
+	desc = "Pieces of a polar bear's fur, these might be able to make your suit a bit more durable to attack from the local fauna."
+	icon_state = "polar_bear_hide"
+	singular_name = "polar bear hide"
 
 /obj/item/stack/sheet/animalhide/ashdrake
 	name = "ash drake hide"

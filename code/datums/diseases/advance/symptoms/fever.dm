@@ -28,20 +28,24 @@ Bonus
 	symptom_delay_min = 10
 	symptom_delay_max = 30
 	var/unsafe = FALSE //over the heat threshold
-	threshold_desc = "<b>Resistance 5:</b> Increases fever intensity, fever can overheat and harm the host.<br>\
-					  <b>Resistance 10:</b> Further increases fever intensity."
+	threshold_descs = list(
+		"Resistance 5" = "Increases fever intensity, fever can overheat and harm the host.",
+		"Resistance 10" = "Further increases fever intensity.",
+	)
 
 /datum/symptom/fever/Start(datum/disease/advance/A)
-	if(!..())
+	. = ..()
+	if(!.)
 		return
-	if(A.properties["resistance"] >= 5) //dangerous fever
+	if(A.totalResistance() >= 5) //dangerous fever
 		power = 1.5
 		unsafe = TRUE
-	if(A.properties["resistance"] >= 10)
+	if(A.totalResistance() >= 10)
 		power = 2.5
 
 /datum/symptom/fever/Activate(datum/disease/advance/A)
-	if(!..())
+	. = ..()
+	if(!.)
 		return
 	var/mob/living/carbon/M = A.affected_mob
 	if(!unsafe || A.stage < 4)

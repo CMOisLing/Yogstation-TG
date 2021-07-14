@@ -48,7 +48,7 @@
 				amount = 1
 			for(var/i in 1 to amount)
 				load(new typekey(src))
-	
+
 	//Slogan pitches work almost identically to the vendor code:
 	slogan_list = splittext(product_slogans, ";")
 	last_pitch = world.time + rand(0, pitch_delay)
@@ -82,8 +82,6 @@
 			START_PROCESSING(SSmachines, src)
 		else
 			stat |= NOPOWER
-
-	update_icon()
 
 /obj/machinery/smartfridge/process()
 	if(stat & (BROKEN|NOPOWER))
@@ -240,9 +238,8 @@
 
 		//Adding items from a bag
 		if(istype(O, /obj/item/storage/bag))
-			var/obj/item/storage/P = O
 			var/loaded = 0
-			for(var/obj/G in P.contents)
+			for(var/obj/G in O.contents)
 				if(contents.len >= max_n_of_items)
 					break
 				if(accept_check(G))
@@ -265,6 +262,21 @@
 			else
 				to_chat(user, "<span class='warning'>There is nothing in [O] to put in [src]!</span>")
 				return FALSE
+
+		//Adding items from a borg's organ storage
+		if(istype(O, /obj/item/organ_storage))
+			var/obj/item/organ_storage/OS = O
+			var/obj/organ = O.contents[1]
+			
+			if(accept_check(organ))
+				load(organ)
+				OS.clear_organ()
+				user.visible_message("[user] has added \the [organ] to \the [src].", "<span class='notice'>You add \the [organ] to \the [src].</span>")
+				update_icon()
+				updateUsrDialog()
+				if(contents.len >= max_n_of_items)
+					indicate_full()
+				return TRUE
 
 		if(user.a_intent != INTENT_HARM)
 			to_chat(user, "<span class='warning'>\The [src] smartly refuses [O].</span>")
@@ -303,10 +315,10 @@
 		O.forceMove(drop_location())
 		adjust_item_drop_location(O)
 
-/obj/machinery/smartfridge/ui_interact(mob/user, ui_key = "main", datum/tgui/ui = null, force_open = FALSE, datum/tgui/master_ui = null, datum/ui_state/state = GLOB.default_state)
-	ui = SStgui.try_update_ui(user, src, ui_key, ui, force_open)
+/obj/machinery/smartfridge/ui_interact(mob/user, datum/tgui/ui)
+	ui = SStgui.try_update_ui(user, src, ui)
 	if(!ui)
-		ui = new(user, src, ui_key, "smartvend", name, 440, 550, master_ui, state)
+		ui = new(user, src, "SmartVend", name)
 		ui.set_autoupdate(FALSE)
 		ui.open()
 
@@ -343,7 +355,7 @@
 			if(!allow_ai_retrieve && isAI(usr))
 				to_chat(usr, "<span class='warning'>[src] does not seem to be configured to respect your authority!</span>")
 				return
-			
+
 			if(!dispenser_arm)
 				audible_message("<span class='warning'>\The [src] makes a loud clunk and the dispenser arm twitches slightly.</span>", "<span class='warning'>The dispenser arm on the [src] twitches slightly.</span>")
 				return
@@ -352,7 +364,7 @@
 				desired = text2num(params["amount"])
 			else
 				desired = input("How many items?", "How many items would you like to take out?", 1) as null|num
-			
+
 			if(desired <= 0)
 				return FALSE
 
@@ -450,13 +462,15 @@
 			return TRUE
 	return FALSE
 
+/obj/machinery/smartfridge/drying_rack/powered()
+	if(!anchored)
+		return FALSE
+	return ..()
+
 /obj/machinery/smartfridge/drying_rack/power_change()
-	if(powered() && anchored)
-		stat &= ~NOPOWER
-	else
-		stat |= NOPOWER
+	. = ..()
+	if(!powered())
 		toggle_drying(TRUE)
-	update_icon()
 
 /obj/machinery/smartfridge/drying_rack/load() //For updating the filled overlay
 	..()
@@ -518,6 +532,10 @@
 		return
 	atmos_spawn_air("TEMP=1000")
 
+/obj/machinery/smartfridge/drying_rack/CtrlClick(mob/user)
+	if(!user.canUseTopic(src, !issilicon(user)))
+		return
+	toggle_drying(FALSE)
 
 // ----------------------------
 //  Bar drink smartfridge
@@ -610,15 +628,14 @@
 	for(var/organ in src)
 		var/obj/item/organ/O = organ
 		if(O)
-			O.damage = max(0, O.damage - repair_rate)
+			O.damage = max(0, O.damage - (O.maxHealth * repair_rate))
 	..()
 
-/obj/machinery/smartfridge/organ/deconstruct()
-	for(var/organ in src)
-		var/obj/item/organ/O = organ
-		if(O)
-			O.organ_flags &= ~ORGAN_FROZEN
-	..()
+/obj/machinery/smartfridge/organ/Exited(atom/movable/AM, atom/newLoc)
+	. = ..()
+	if(isorgan(AM))
+		var/obj/item/organ/O = AM
+		O.organ_flags &= ~ORGAN_FROZEN
 
 // -----------------------------
 // Chemistry Medical Smartfridge

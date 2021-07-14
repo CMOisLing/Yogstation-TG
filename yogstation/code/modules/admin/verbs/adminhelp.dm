@@ -33,7 +33,7 @@ GLOBAL_DATUM_INIT(ahelp_tickets, /datum/admin_help_tickets, new)
 //opens the ticket listings for one of the 3 states
 /datum/admin_help_tickets/proc/BrowseTickets(state)
 	var/title
-	var/list/dat = list("<html><head><title>[title]</title></head>")
+	var/list/dat = list("<html><head><meta charset='UTF-8'><title>[title]</title></head>")
 	dat += "<A href='?_src_=holder;[HrefToken()];ahelp_tickets=[state]'>Refresh</A><br><br>"
 	for(var/I in tickets_list)
 		var/datum/admin_help/AH = I
@@ -125,6 +125,7 @@ GLOBAL_DATUM_INIT(ahelp_tickets, /datum/admin_help_tickets, new)
 
 	var/list/_interactions	//use AddInteraction() or, preferably, admin_ticket_log()
 	var/static/ticket_counter = 0
+	var/static/last_bwoinking = 0
 
 //call this on its own to create a ticket, don't manually assign current_ticket
 //msg is the title of the ticket: usually the ahelp text
@@ -178,9 +179,11 @@ GLOBAL_DATUM_INIT(ahelp_tickets, /datum/admin_help_tickets, new)
 /datum/admin_help/proc/check_owner() // Handles unclaimed tickets; returns TRUE if no longer unclaimed
 	if(!handling_admin && state == AHELP_ACTIVE)
 		message_admins("<font color='blue'>Ticket [TicketHref("#[id]")] Unclaimed!</font>")
-		for(var/client/X in GLOB.admins)
-			if(check_rights_for(X,R_BAN) && (X.prefs.toggles & SOUND_ADMINHELP)) // Can't use check_rights here since it's dependent on $usr
-				SEND_SOUND(X, sound('sound/effects/adminhelp.ogg'))
+		if(world.time > last_bwoinking)
+			last_bwoinking = world.time + 1 SECONDS
+			for(var/client/X in GLOB.admins)
+				if(check_rights_for(X,R_BAN) && (X.prefs.toggles & SOUND_ADMINHELP)) // Can't use check_rights here since it's dependent on $usr
+					SEND_SOUND(X, sound('sound/effects/adminhelp.ogg'))
 		return FALSE
 	return TRUE
 
@@ -190,7 +193,7 @@ GLOBAL_DATUM_INIT(ahelp_tickets, /datum/admin_help_tickets, new)
 
 //Removes the ahelp verb and returns it after 2 minutes
 /datum/admin_help/proc/TimeoutVerb()
-	initiator.verbs -= /client/verb/adminhelp
+	remove_verb(initiator, /client/verb/adminhelp)
 	initiator.adminhelptimerid = addtimer(CALLBACK(initiator, /client/proc/giveadminhelpverb), 1200, TIMER_STOPPABLE) //2 minute cooldown of admin helps
 
 //private
@@ -209,6 +212,7 @@ GLOBAL_DATUM_INIT(ahelp_tickets, /datum/admin_help_tickets, new)
 	. += " (<A HREF='?_src_=holder;[HrefToken(TRUE)];ahelp=[ref_src];ahelp_action=icissue'>IC</A>)"
 	. += " (<A HREF='?_src_=holder;[HrefToken(TRUE)];ahelp=[ref_src];ahelp_action=resolve'>RSLVE</A>)"
 	. += " (<A HREF='?_src_=holder;[HrefToken(TRUE)];ahelp=[ref_src];ahelp_action=wiki'>WIKI</A>)"
+	. += " (<A HREF='?_src_=holder;[HrefToken(TRUE)];ahelp=[ref_src];ahelp_action=bug'>BUG</A>)"
 	. += " (<A HREF='?_src_=holder;[HrefToken(TRUE)];ahelp=[REF(src)];ahelp_action=mhelpquestion'>MHELP</a>)"
 
 //private
@@ -329,7 +333,7 @@ GLOBAL_DATUM_INIT(ahelp_tickets, /datum/admin_help_tickets, new)
 
 	if(resolved)
 		AddInteraction("Ticket #[id] marked as resolved by [usr.ckey].")
-		to_chat(initiator, "<span class='adminhelp'>Your ticket has been marked as resolved by [usr.client.holder?.fakekey ? "an Administrator" : key_name(usr, 0, 0)]. The Adminhelp verb will be returned to you shortly.</span>", confidential=TRUE)
+		to_chat(initiator, "<span class='adminhelp'>Your ticket has been marked as resolved by [usr.client.holder?.fakekey ? "an Administrator" : key_name(usr, 0, 0)].</span>", confidential=TRUE)
 		addtimer(CALLBACK(initiator, /client/proc/giveadminhelpverb), 50)
 	else // AHELP_ACTIVE
 		AddInteraction("Ticket #[id] marked as unresolved by [usr.ckey].")
@@ -427,6 +431,26 @@ GLOBAL_DATUM_INIT(ahelp_tickets, /datum/admin_help_tickets, new)
 	message_admins(msg)
 	log_admin_private(msg)
 	AddInteraction("Marked as WIKI issue by [usr.ckey]")
+	Resolve(silent = TRUE)
+
+//Resolve ticket with bug message
+/datum/admin_help/proc/GithubIssue(key_name = key_name_admin(usr))
+	if(state != AHELP_ACTIVE)
+		return
+
+	var/msg = "<font color='red' size='4'><b>- AdminHelp marked as a Github issue by [usr.client.holder?.fakekey ? "an Administrator" : key_name(usr, 0, 0)]! -</b></font><br>"
+	msg += "<font color='red'><b>You are reporting a Bug or Github Issue.</b></font><br>"
+	msg += "<font color='red'>[CONFIG_GET(string/githuburl)]/issues/new?template=bug_report.md</font>"
+	msg += "<font color='red'><b>Please fill out the issues form with detailed information about the bug or other issue you have discovered.</b></font><br>"
+
+	if(initiator)
+		to_chat(initiator, msg, confidential=TRUE)
+
+	SSblackbox.record_feedback("tally", "ahelp_stats", 1, "BUG")
+	msg = "Ticket [TicketHref("#[id]")] marked as BUG by [key_name]"
+	message_admins(msg)
+	log_admin_private(msg)
+	AddInteraction("Marked as BUG issue by [usr.ckey]")
 	Resolve(silent = TRUE)
 
 //Show the ticket panel
@@ -563,6 +587,8 @@ GLOBAL_DATUM_INIT(ahelp_tickets, /datum/admin_help_tickets, new)
 			Administer()
 		if("wiki")
 			WikiIssue()
+		if("bug")
+			GithubIssue()
 		if("popup")
 			PopUps()
 
@@ -571,7 +597,14 @@ GLOBAL_DATUM_INIT(ahelp_tickets, /datum/admin_help_tickets, new)
 //
 
 /client/proc/giveadminhelpverb()
-	src.verbs |= /client/verb/adminhelp
+	//client may of have disconnected by the time this proc gets called
+	if(!src)
+		return
+		
+	if(!locate(/client/verb/adminhelp) in src.verbs)
+		add_verb(src, /client/verb/adminhelp)
+
+
 	deltimer(adminhelptimerid)
 	adminhelptimerid = 0
 
@@ -861,6 +894,7 @@ GLOBAL_DATUM_INIT(ahelp_tickets, /datum/admin_help_tickets, new)
 	world.TgsTargetedChatBroadcast("[msg] | [msg2]", TRUE)
 
 /proc/send2otherserver(source,msg,type = "Ahelp")
+	set waitfor = FALSE
 	var/comms_key = CONFIG_GET(string/comms_key)
 	if(!comms_key)
 		return

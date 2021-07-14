@@ -17,6 +17,10 @@
 	clawfootstep = FOOTSTEP_HARD_CLAW
 	heavyfootstep = FOOTSTEP_GENERIC_HEAVY
 
+	FASTDMM_PROP(\
+		pipe_astar_cost = 1\
+	)
+
 	var/attachment_holes = TRUE
 
 /turf/open/floor/plating/examine(mob/user)
@@ -93,6 +97,11 @@
 		broken = FALSE
 
 	return TRUE
+
+/turf/open/floor/plating/rust_heretic_act()
+	if(prob(70))
+		new /obj/effect/glowing_rune(src)
+	ChangeTurf(/turf/open/floor/plating/rust)
 
 /turf/open/floor/plating/make_plating()
 	return

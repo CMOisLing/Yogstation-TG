@@ -8,12 +8,12 @@
 	anchored = TRUE
 	var/mob_type = null
 	var/mob_name = ""
-	var/prompt_name = null// Yogs
+	var/prompt_name = null
 	var/mob_gender = null
 	var/death = TRUE //Kill the mob
 	var/roundstart = TRUE //fires on initialize
 	var/instant = FALSE	//fires on New
-	var/short_desc = "The mapper forgot to set this!"
+	var/short_desc = "A coder forgot to set this!"
 	var/flavour_text = ""
 	var/important_info = ""
 	var/faction = null
@@ -36,18 +36,21 @@
 /obj/effect/mob_spawn/attack_ghost(mob/user)
 	if(!SSticker.HasRoundStarted() || !loc || !ghost_usable)
 		return
+	if(!(GLOB.ghost_role_flags & GHOSTROLE_SPAWNER) && !(flags_1 & ADMIN_SPAWNED_1))
+		to_chat(user, "<span class='warning'>An admin has temporarily disabled non-admin ghost roles!</span>")
+		return
 	if(!uses)
 		to_chat(user, "<span class='warning'>This spawner is out of charges!</span>")
 		return
 	if(is_banned_from(user.key, banType))
-		to_chat(user, "<span class='warning'>You are jobanned!</span>")
+		to_chat(user, "<span class='warning'>You are job banned!</span>")
 		return
 	if(QDELETED(src) || QDELETED(user))
 		return
-	if(!check_allowed(user)) // Yogs
-		return // Yogs
-	var/ghost_role = alert("Become [prompt_name ? prompt_name : mob_name]? (Warning, You can no longer be cloned!)",,"Yes","No") // Yogs
-	if(!check_allowed(user) || (ghost_role == "No") || !loc || QDELETED(src) || QDELETED(user)) // Yogs
+	if(!check_allowed(user))
+		return
+	var/ghost_role = alert("Become [prompt_name ? prompt_name : mob_name]? (Warning, You can no longer be cloned!)",,"Yes","No")
+	if(!check_allowed(user) || (ghost_role == "No") || !loc || QDELETED(src) || QDELETED(user))
 		return
 	log_game("[key_name(user)] became [mob_name]")
 	create(ckey = user.ckey)
@@ -68,10 +71,8 @@
 		GLOB.mob_spawners -= name
 	return ..()
 
-// Yogs start
 /obj/effect/mob_spawn/proc/check_allowed(mob/M)
 	return TRUE
-// Yogs end
 
 /obj/effect/mob_spawn/proc/special(mob/M)
 	return
@@ -315,6 +316,9 @@
 /obj/effect/mob_spawn/human/corpse/assistant/spanishflu_infection
 	disease = /datum/disease/fluspanish
 
+/obj/effect/mob_spawn/human/corpse/assistant/jitters_infection
+	disease = /datum/disease/jitters
+
 /obj/effect/mob_spawn/human/corpse/cargo_tech
 	name = "Cargo Tech"
 	outfit = /datum/outfit/job/cargo_tech
@@ -403,8 +407,23 @@
 	shoes = /obj/item/clothing/shoes/sneakers/black
 	suit = /obj/item/clothing/suit/armor/vest
 	glasses = /obj/item/clothing/glasses/sunglasses/reagent
-	implants = list(/obj/item/implant/teleporter/ghost_role) //yogs change no leaving for the bartender of space
+	implants = list(/obj/item/implant/teleporter/ghost_role)
 	id = /obj/item/card/id
+
+/obj/effect/mob_spawn/human/bartender/alive/space
+	name = "space bartender sleeper"
+	flavour_text = "<span class='big bold'>You are a space bartender!</span> You got this place from your old man, a bar in the middle of nowhere. Or at least, until NanoTrasen decided to move in. Time to mix drinks and change lives. <b>Do not leave your post under any circumstances!</b>"
+	outfit = /datum/outfit/spacebartender/space
+
+/obj/effect/mob_spawn/human/bartender/alive/space/special(mob/living/L)
+	L.fully_replace_character_name(null,"[L.real_name] Jr.")
+
+/datum/outfit/spacebartender/space
+	ears = /obj/item/radio/headset/headset_srv
+	backpack_contents = list(/obj/item/storage/box/beanbag=1)
+	suit_store = /obj/item/gun/ballistic/shotgun/doublebarrel
+	mask = /obj/item/clothing/mask/breath
+	l_pocket = /obj/item/tank/internals/emergency_oxygen/double
 
 /obj/effect/mob_spawn/human/beach
 	outfit = /datum/outfit/beachbum

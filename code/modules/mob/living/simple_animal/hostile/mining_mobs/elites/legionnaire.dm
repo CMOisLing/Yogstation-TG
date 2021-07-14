@@ -32,7 +32,7 @@
 	//attack_verb_simple = "slash your arms at"
 	attack_sound = 'sound/weapons/bladeslice.ogg'
 	throw_message = "doesn't affect the sturdiness of"
-	speed = 1
+	speed = 0
 	move_to_delay = 3
 	mouse_opacity = MOUSE_OPACITY_ICON
 	deathsound = 'sound/magic/curse.ogg'
@@ -254,9 +254,9 @@
 	light_range = 4
 	light_color = LIGHT_COLOR_RED
 	var/mob/living/simple_animal/hostile/asteroid/elite/legionnaire/myowner = null
-
-
-/obj/structure/legionnaire_bonfire/Entered(atom/movable/mover, turf/target)
+	
+	
+/obj/structure/legionnaire_bonfire/Entered(atom/movable/mover, atom/target)
 	if(isliving(mover))
 		var/mob/living/L = mover
 		L.adjust_fire_stacks(3)
@@ -291,10 +291,9 @@
 	return "mark detonation to have a <b>[bonus_value]%</b> chance to summon a loyal legion skull"
 
 /obj/item/crusher_trophy/legionnaire_spine/on_mark_detonation(mob/living/target, mob/living/user)
-	if(!rand(1, 100) <= bonus_value || target.stat == DEAD)
-		return
-	var/mob/living/simple_animal/hostile/asteroid/hivelordbrood/legion/A = new /mob/living/simple_animal/hostile/asteroid/hivelordbrood/legion(user.loc)
-	A.flags_1 |= (flags_1 & ADMIN_SPAWNED_1)
-	A.GiveTarget(target)
-	A.friends = user
-	A.faction = user.faction.Copy()
+	if(rand(1, 100) <= bonus_value && target.stat != DEAD)
+		var/mob/living/simple_animal/hostile/asteroid/hivelordbrood/legion/A = new /mob/living/simple_animal/hostile/asteroid/hivelordbrood/legion(user.loc)
+		A.flags_1 |= (flags_1 & ADMIN_SPAWNED_1)
+		A.GiveTarget(target)
+		A.friends = user
+		A.faction = user.faction.Copy()

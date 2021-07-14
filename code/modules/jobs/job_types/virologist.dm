@@ -9,7 +9,8 @@
 	supervisors = "the chief medical officer"
 	selection_color = "#d4ebf2"
 	exp_type = EXP_TYPE_CREW
-	exp_requirements = 60
+	exp_requirements = 120
+	exp_type_department = EXP_TYPE_MEDICAL
 
 	outfit = /datum/outfit/job/virologist
 
@@ -20,11 +21,7 @@
 
 	display_order = JOB_DISPLAY_ORDER_VIROLOGIST
 
-	changed_maps = list("MinskyStation", "OmegaStation")
-
-/datum/job/virologist/proc/MinskyStationChanges()
-	total_positions = 2
-	spawn_positions = 2
+	changed_maps = list("OmegaStation")
 
 /datum/job/virologist/proc/OmegaStationChanges()
 	return TRUE

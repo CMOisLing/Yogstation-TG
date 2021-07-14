@@ -153,7 +153,7 @@ Stabilized extracts:
 		saved_mind = null
 		START_PROCESSING(SSobj, src)
 	if(choice == "Familiar Name")
-		var/newname = copytext(sanitize(input(user, "Would you like to change the name of [mob_name]", "Name change", mob_name) as null|text),1,MAX_NAME_LEN)
+		var/newname = sanitize_name(stripped_input(user, "Would you like to change the name of [mob_name]", "Name change", mob_name, MAX_NAME_LEN))
 		if(newname)
 			mob_name = newname
 		to_chat(user, "<span class='notice'>You speak softly into [src], and it shakes slightly in response.</span>")
@@ -169,7 +169,7 @@ Stabilized extracts:
 
 /obj/item/slimecross/stabilized/lightpink
 	colour = "light pink"
-	effect_desc = "The owner moves at high speeds while holding this extract, also stabilizes anyone in critical condition around you using Epinephrine and Regenerative Jelly."
+	effect_desc = "The owner stabilizes anyone in critical condition around them using Epinephrine and Regenerative Jelly."
 
 /obj/item/slimecross/stabilized/adamantine
 	colour = "adamantine"

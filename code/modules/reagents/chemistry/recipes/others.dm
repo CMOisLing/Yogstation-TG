@@ -11,6 +11,12 @@
 	results = list(/datum/reagent/lube = 4)
 	required_reagents = list(/datum/reagent/water = 1, /datum/reagent/silicon = 1, /datum/reagent/oxygen = 1)
 
+/datum/chemical_reaction/itching_powder
+	name = "Itching Powder"
+	id = /datum/reagent/itching_powder
+	results = list(/datum/reagent/itching_powder = 3)
+	required_reagents = list(/datum/reagent/fuel = 1, /datum/reagent/ammonia = 1, /datum/reagent/medicine/charcoal = 1)
+
 /datum/chemical_reaction/spraytan
 	name = "Spray Tan"
 	id = /datum/reagent/spraytan
@@ -537,6 +543,32 @@
 		new /mob/living/simple_animal/pet/dog/corgi(location)
 	..()
 
+//monkey powder heehoo
+/datum/chemical_reaction/monkey_powder
+	name = /datum/reagent/monkey_powder
+	id = /datum/reagent/monkey_powder
+	results = list(/datum/reagent/monkey_powder = 3)
+	required_reagents = list(/datum/reagent/consumable/banana = 1, /datum/reagent/consumable/nutriment = 2, /datum/reagent/liquidgibs = 1)
+
+/datum/chemical_reaction/monkey
+	name = "monkey"
+	id = "monkey"
+	required_reagents = list(/datum/reagent/monkey_powder = 30, /datum/reagent/water = 1)
+
+/datum/chemical_reaction/monkey/on_reaction(datum/reagents/holder, created_volume)
+	var/location = get_turf(holder.my_atom)
+	if (location) new /mob/living/carbon/monkey(location)
+
+/datum/chemical_reaction/gorilla
+	name = "gorilla"
+	id = "gorilla"
+	required_reagents = list(/datum/reagent/gorilla_powder = 30, /datum/reagent/water = 1)
+
+/datum/chemical_reaction/gorilla/on_reaction(datum/reagents/holder, created_volume)
+	var/location = get_turf(holder.my_atom)
+	if (location) new /mob/living/simple_animal/hostile/gorilla(location)
+
+
 /datum/chemical_reaction/hair_dye
 	name = /datum/reagent/hair_dye
 	id = /datum/reagent/hair_dye
@@ -601,3 +633,16 @@
 	id = /datum/reagent/pax
 	results = list(/datum/reagent/pax = 3)
 	required_reagents  = list(/datum/reagent/toxin/mindbreaker = 1, /datum/reagent/medicine/synaptizine = 1, /datum/reagent/water = 1)
+
+/datum/chemical_reaction/liquidelectricity
+	name = /datum/reagent/consumable/liquidelectricity
+	id = /datum/reagent/consumable/liquidelectricity
+	results = list(/datum/reagent/consumable/liquidelectricity = 2)
+	required_reagents = list(/datum/reagent/teslium = 1, /datum/reagent/blood = 2)
+
+/datum/chemical_reaction/cellulose_carbonization
+	name = "Cellulose_Carbonization"
+	id = /datum/reagent/carbon
+	results = list(/datum/reagent/carbon = 1)
+	required_reagents = list(/datum/reagent/cellulose = 1)
+	required_temp = 512

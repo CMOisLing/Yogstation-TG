@@ -264,7 +264,6 @@
 	dir = 4
 	},
 /obj/machinery/atmospherics/pipe/manifold/green/hidden{
-	icon_state = "manifold-2";
 	dir = 8
 	},
 /turf/open/floor/plasteel,
@@ -838,10 +837,10 @@
 /obj/item/stack/sheet/animalhide/human,
 /obj/item/stack/sheet/animalhide/human,
 /obj/machinery/atmospherics/components/unary/vent_pump/siphon/atmos{
-	name = "freezer vent";
-	icon_state = "vent_map_siphon_on-2";
 	dir = 4;
-	id_tag = "o2_out_cat"
+	icon_state = "vent_map_siphon_on-2";
+	id_tag = "o2_out_cat";
+	name = "freezer vent"
 	},
 /turf/open/floor/plasteel/freezer,
 /area/ruin/space/has_grav/powered/cat_man)
@@ -878,7 +877,6 @@
 /area/ruin/space/has_grav/powered/cat_man)
 "co" = (
 /obj/machinery/atmospherics/pipe/simple/dark/hidden{
-	icon_state = "pipe11-2";
 	dir = 9
 	},
 /turf/open/floor/plasteel/freezer,

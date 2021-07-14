@@ -71,13 +71,18 @@
 			adjust_blindness(-3)
 		else
 			adjust_blindness(-1)
-	else if(eye_blurry)			//blurry eyes heal slowly
+	if(eye_blurry)			//blurry eyes heal slowly
 		adjust_blurriness(-1)
 
 	if (getOrganLoss(ORGAN_SLOT_BRAIN) >= 60)
 		SEND_SIGNAL(src, COMSIG_ADD_MOOD_EVENT, "brain_damage", /datum/mood_event/brain_damage)
 	else
 		SEND_SIGNAL(src, COMSIG_CLEAR_MOOD_EVENT, "brain_damage")
+
+	if(!dna)
+		return
+	if(prob(3) && dna.check_mutation(ACTIVE_HULK))
+		say(pick_list_replacements(BRAIN_DAMAGE_FILE, "hulk"))
 
 /mob/living/carbon/human/handle_mutations_and_radiation()
 	if(!dna || !dna.species.handle_mutations_and_radiation(src))
@@ -150,6 +155,8 @@
 	//If have no DNA or can be Ignited, call parent handling to light user
 	//If firestacks are high enough
 	if(!dna || dna.species.CanIgniteMob(src))
+		if(get_thermal_protection() > FIRE_SUIT_MAX_TEMP_PROTECT*0.95) // If they're resistant to fire (slightly undercut to make sure get_thermal_protection doesn't fuck over this achievement due to floating-point errors
+			SSachievements.unlock_achievement(/datum/achievement/engineering/toasty,src.client) // Fear the reaper man!
 		return ..()
 	. = FALSE //No ignition
 

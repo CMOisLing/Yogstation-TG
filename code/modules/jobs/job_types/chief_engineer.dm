@@ -31,11 +31,6 @@
 
 	display_order = JOB_DISPLAY_ORDER_CHIEF_ENGINEER
 
-	changed_maps = list("OmegaStation")
-
-/datum/job/chief_engineer/proc/OmegaStationChanges()
-	return TRUE
-
 /datum/outfit/job/ce
 	name = "Chief Engineer"
 	jobtype = /datum/job/chief_engineer
@@ -46,6 +41,7 @@
 	ears = /obj/item/radio/headset/heads/ce
 	uniform = /obj/item/clothing/under/rank/chief_engineer
 	shoes = /obj/item/clothing/shoes/sneakers/brown
+	alt_shoes = /obj/item/clothing/shoes/xeno_wraps/command // Provides Command shoes to digitigrade species
 	head = /obj/item/clothing/head/hardhat/white
 	gloves = /obj/item/clothing/gloves/color/black/ce
 	backpack_contents = list(/obj/item/melee/classic_baton/telescopic=1, /obj/item/modular_computer/tablet/preset/advanced=1) //yogs - removes eng budget

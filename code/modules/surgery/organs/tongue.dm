@@ -19,9 +19,11 @@
 		/datum/language/ratvar,
 		/datum/language/aphasia,
 		/datum/language/piratespeak,
+		/datum/language/sylvan,
 		/datum/language/japanese,
 		/datum/language/machine, //yogs
-		/datum/language/darkspawn //also yogs
+		/datum/language/darkspawn, //also yogs
+		/datum/language/encrypted
 	))
 
 /obj/item/organ/tongue/Initialize(mapload)
@@ -42,11 +44,11 @@
 	..()
 	if(say_mod && M.dna && M.dna.species)
 		M.dna.species.say_mod = initial(M.dna.species.say_mod)
-	UnregisterSignal(M, COMSIG_MOB_SAY, .proc/handle_speech)
+	UnregisterSignal(M, COMSIG_MOB_SAY)
 	M.RegisterSignal(M, COMSIG_MOB_SAY, /mob/living/carbon/.proc/handle_tongueless_speech)
 
-/obj/item/organ/tongue/could_speak_in_language(datum/language/dt)
-	return is_type_in_typecache(dt, languages_possible)
+/obj/item/organ/tongue/could_speak_language(language)
+	return is_type_in_typecache(language, languages_possible)
 
 /obj/item/organ/tongue/lizard
 	name = "forked tongue"
@@ -150,7 +152,7 @@
 		var/insertpos = rand(1, message_list.len - 1)
 		var/inserttext = message_list[insertpos]
 
-		if(!(copytext(inserttext, length(inserttext) - 2) == "..."))
+		if(!(copytext(inserttext, -3) == "..."))//3 == length("...")
 			message_list[insertpos] = inserttext + "..."
 
 		if(prob(20) && message_list.len > 3)
@@ -220,7 +222,7 @@
 	modifies_speech = TRUE
 	taste_sensitivity = 25 // not as good as an organic tongue
 
-/obj/item/organ/tongue/robot/can_speak_in_language(datum/language/dt)
+/obj/item/organ/tongue/robot/can_speak_language(language)
 	return TRUE // THE MAGIC OF ELECTRONICS
 
 /obj/item/organ/tongue/robot/handle_speech(datum/source, list/speech_args)
@@ -239,3 +241,26 @@
 		else
 			new_message += message[i]
 	speech_args[SPEECH_MESSAGE] = new_message
+
+/obj/item/organ/tongue/polysmorph
+	name = "polysmorph tongue"
+	desc = "Similar to that of a true xenomorph, but less bitey."
+	icon_state = "tonguexeno"
+	say_mod = "hisses"
+	modifies_speech = TRUE
+	var/static/list/languages_possible_polysmorph = typecacheof(list(
+		/datum/language/common,
+		/datum/language/polysmorph))
+
+/obj/item/organ/tongue/polysmorph/handle_speech(datum/source, list/speech_args)
+	var/static/regex/polysmorph_hiss = new("s+", "g")
+	var/static/regex/polysmorph_hiSS = new("S+", "g")
+	var/message = speech_args[SPEECH_MESSAGE]
+	if(message[1] != "*")
+		message = polysmorph_hiss.Replace(message, "ssssss")
+		message = polysmorph_hiSS.Replace(message, "SSSSSS")
+	speech_args[SPEECH_MESSAGE] = message
+
+/obj/item/organ/tongue/polysmorph/Initialize(mapload)
+	. = ..()
+	languages_possible = languages_possible_polysmorph

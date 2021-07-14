@@ -3,44 +3,9 @@
 //Oh god what the fuck I am not good at computer
 /obj/item/book/manual
 	icon = 'icons/obj/library.dmi'
+	w_class = WEIGHT_CLASS_SMALL
 	due_date = 0 // Game time in 1/10th seconds
 	unique = TRUE   // FALSE - Normal book, TRUE - Should not be treated as normal book, unable to be copied, unable to be modified
-
-/obj/item/book/manual/hydroponics_pod_people
-	name = "The Human Harvest - From seed to market"
-	icon_state ="bookHydroponicsPodPeople"
-	author = "Farmer John" // Whoever wrote the paper or book, can be changed by pen or PC. It is not automatically assigned.
-	title = "The Human Harvest - From seed to market"
-	//book contents below
-	dat = {"<html>
-				<head>
-				<style>
-				h1 {font-size: 18px; margin: 15px 0px 5px;}
-				h2 {font-size: 15px; margin: 15px 0px 5px;}
-				li {margin: 2px 0px 2px 15px;}
-				ul {list-style: none; margin: 5px; padding: 0px;}
-				ol {margin: 5px; padding: 0px 15px;}
-				</style>
-				</head>
-				<body>
-				<h3>Growing Humans</h3>
-
-				Why would you want to grow humans? Well I'm expecting most readers to be in the slave trade, but a few might actually
-				want to revive fallen comrades. Growing pod people is easy, but prone to disaster.
-				<p>
-				<ol>
-				<li>Find a dead person who is in need of cloning. </li>
-				<li>Take a blood sample with a syringe. </li>
-				<li>Inject a seed pack with the blood sample. </li>
-				<li>Plant the seeds. </li>
-				<li>Tend to the plants water and nutrition levels until it is time to harvest the cloned human.</li>
-				</ol>
-				<p>
-				It really is that easy! Good luck!
-
-				</body>
-				</html>
-				"}
 
 /obj/item/book/manual/ripley_build_and_repair
 	name = "APLU \"Ripley\" Construction and Operation Manual"
@@ -233,7 +198,6 @@
 
 // Wiki books that are linked to the configured wiki link.
 
-// A book that links to the wiki
 /obj/item/book/manual/wiki
 	var/page_link = ""
 	window_size = "970x710"
@@ -247,27 +211,27 @@
 	var/wikiurl = CONFIG_GET(string/wikiurl)
 	if(wikiurl)
 		dat = {"
-
-			<html><head>
+			<iframe 
+				id='ext_frame' 
+				src='[wikiurl]/frame.html' 
+				style='border: none; width: 100vw; height: 100vh;'>
+			</iframe>
 			<style>
-				iframe {
-					display: none;
+			html, body { 
+				height: 100vh;
+				width: 100vw; 
+				margin: 0;
+				overflow: hidden;
+			}
+			body > :not(iframe) {
+				display: none;
 				}
 			</style>
-			</head>
-			<body>
-			<script type="text/javascript">
-				function pageloaded(myframe) {
-					document.getElementById("loading").style.display = "none";
-					myframe.style.display = "inline";
-    			}
+			<script>
+				window.onmessage = function() {
+					document.getElementById('ext_frame').contentWindow.postMessage('[page_link]', '*')
+				}
 			</script>
-			<p id='loading'>You start skimming through the manual...</p>
-			<iframe width='100%' height='97%' onload="pageloaded(this)" src="[wikiurl]/[page_link]?printable=yes&remove_links=1" frameborder="0" id="main_frame"></iframe>
-			</body>
-
-			</html>
-
 			"}
 
 /obj/item/book/manual/wiki/chemistry
@@ -275,21 +239,21 @@
 	icon_state ="chemistrybook"
 	author = "Nanotrasen"
 	title = "Chemistry Textbook"
-	page_link = "Guide_to_chemistry"
+	page_link = "Guide_to_Chemistry"
 
 /obj/item/book/manual/wiki/engineering_construction
 	name = "Station Repairs and Construction"
 	icon_state ="bookEngineering"
 	author = "Engineering Encyclopedia"
 	title = "Station Repairs and Construction"
-	page_link = "Guide_to_construction"
+	page_link = "Guide_to_Construction"
 
 /obj/item/book/manual/wiki/engineering_guide
 	name = "Engineering Textbook"
 	icon_state ="bookEngineering2"
 	author = "Engineering Encyclopedia"
 	title = "Engineering Textbook"
-	page_link = "Guide_to_engineering"
+	page_link = "Guide_to_Engineering"
 
 /obj/item/book/manual/wiki/engineering_singulo_tesla
 	name = "Singularity and Tesla for Dummies"
@@ -343,7 +307,21 @@
 	icon_state = "barbook"
 	author = "Sir John Rose"
 	title = "Barman Recipes: Mixing Drinks and Changing Lives"
-	page_link = "Guide_to_food_and_drinks"
+	page_link = "Guide_to_Drinks"
+
+/obj/item/book/manual/wiki/hydroponicsguide
+	name = "Botany: An Introduction"
+	icon_state = "hydrobucket"
+	author = "Farmer John"
+	title = "Botany: An Introduction"
+	page_link = "Guide_to_hydroponics"
+
+/obj/item/book/manual/wiki/hydroponicsplants
+	name = "Plants of the Galaxy"
+	icon_state = "hydroplant"
+	author = "Gose Jarcia"
+	title = "Plants of the Galaxy"
+	page_link = "Guide_to_plants"
 
 /obj/item/book/manual/wiki/robotics_cyborgs
 	name = "Robotics for Dummies"
@@ -364,14 +342,21 @@
 	icon_state = "rdbook"
 	author = "Dr. H.P. Kritz"
 	title = "Mentoring your Experiments"
-	page_link = "Experimentor"
+	page_link = "E.X.P.E.R.I-MENTOR"
 
 /obj/item/book/manual/wiki/medical_cloning
 	name = "Cloning techniques of the 26th century"
 	icon_state ="bookCloning"
 	author = "Medical Journal, volume 3"
 	title = "Cloning techniques of the 26th century"
-	page_link = "Guide_to_genetics#Cloning"
+	page_link = "Guide_to_Genetics"
+
+/obj/item/book/manual/wiki/medical_genetics
+	name = "Genetics of the 26th century"
+	icon_state ="bookCloning"
+	author = "Dr. Likes-The-Powers "
+	title = "Genetics of the 26th century"
+	page_link = "Guide_to_Genetics"
 
 /obj/item/book/manual/wiki/cooking_to_serve_man
 	name = "To Serve Man"
@@ -379,7 +364,7 @@
 	icon_state ="cooked_book"
 	author = "the Kanamitan Empire"
 	title = "To Serve Man"
-	page_link = "Guide_to_food_and_drinks"
+	page_link = "Guide_to_food"
 
 /obj/item/book/manual/wiki/tcomms
 	name = "Subspace Telecommunications And You"
